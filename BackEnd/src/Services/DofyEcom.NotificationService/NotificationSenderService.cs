@@ -1,4 +1,4 @@
-﻿namespace DOFY.NotificationService
+namespace DOFY.NotificationService
 {
     using System;
     using System.Collections.Generic;
@@ -45,11 +45,11 @@
                     case "1":
                         Console.WriteLine("Running Service - Press Enter To Exit");
                         await base.StartAsync(cancellationToken);
+                        Console.ReadLine(); // Safe read to wait for Enter
+                        await StopAsync(cancellationToken);
                         break;
                 }
-
-                Console.Read();
-                await StopAsync(cancellationToken);
+                return; // Return early to prevent executing base.StartAsync again after StopAsync has disposed the timer
             }
 
             await base.StartAsync(cancellationToken);
