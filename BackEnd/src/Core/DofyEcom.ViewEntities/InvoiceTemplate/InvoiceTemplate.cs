@@ -1,0 +1,12 @@
+﻿namespace DofyEcom.ViewEntities
+{
+    public class InvoiceTemplate : EntityBase
+    {
+        public int InvoiceTypeId { get; set; }
+
+        public string EnumName { get; set; }
+
+        public string Template { get; set; }
+
+    }
+}

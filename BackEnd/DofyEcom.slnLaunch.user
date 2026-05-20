@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "src\\API\\DofyEcom.Admin.API\\DofyEcom.Admin.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\API\\DofyEcom.Public.API\\DofyEcom.Public.API.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
