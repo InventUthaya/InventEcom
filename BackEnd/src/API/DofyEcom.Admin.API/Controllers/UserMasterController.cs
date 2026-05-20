@@ -1,4 +1,4 @@
-﻿using DofyEcom.Contracts;
+using DofyEcom.Contracts;
 using DofyEcom.Contracts.Interfaces.Admin;
 using DofyEcom.Contracts.Requests;
 using DofyEcom.ViewEntities.ViewModel;
@@ -107,6 +107,39 @@ namespace DofyEcom.Admin.API.Controllers
                 {
                     UserId = userId,
                     message = "User updated successfully"
+                });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Unexpected error: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("deleteuser/{userId}")]
+        public async Task<ActionResult<bool>> DeleteUser(int userId, [FromQuery] bool isActive)
+        {
+            try
+            {
+                if (userId <= 0)
+                {
+                    return BadRequest(new { message = "Invalid user ID." });
+                }
+
+                var success = await userMasterModel.DeleteUser(userId, isActive);
+
+                if (!success)
+                {
+                    return BadRequest(new { message = "Failed to update user active status." });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"User active status updated to {(isActive ? "Active" : "Inactive")} successfully."
                 });
             }
             catch (ApplicationException ex)

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    ArrowLeft, 
-    Edit, 
-    Filter, 
-    ChevronUp, 
-    ChevronDown, 
-    Users, 
-    UserCheck, 
+import {
+    ArrowLeft,
+    Edit,
+    Filter,
+    ChevronUp,
+    ChevronDown,
+    Users,
+    UserCheck,
     UserX,
     UserPlus
 } from 'lucide-react';
@@ -15,6 +15,10 @@ import CommonService from '../../services/CommonService';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import PageMeta from '../../components/common/PageMeta';
 import Pagination from '../CustomComponent/Pagination'; // Import pagination component
+import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModel';
+import ActiveConfirmationModal from '../../components/common/ActiveConfirmationModal';
+
+
 
 const UserManagement = () => {
     const [activeTab, setActiveTab] = useState('riders');
@@ -35,11 +39,16 @@ const UserManagement = () => {
     const location = useLocation();
     const [totalRecords, setTotalRecords] = useState(0);
     const [hasMore, setHasMore] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [openActiveModal, setOpenActiveModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<{ id: number; status: string } | null>(null);
+
+
 
     const fetchUsers = async (page = 1) => {
         setLoading(true);
         setError(null);
-        
+
         try {
             // Build search text from all filters
             const searchText = [
@@ -58,7 +67,7 @@ const UserManagement = () => {
             };
 
             const res = await CommonService.post("rider-assignment", "GetUsersByRole", params);
-            
+
             if (res.data && res.data.Users) {
                 const transformedUsers = res.data.Users.map((user) => ({
                     id: user.UserID,
@@ -69,19 +78,19 @@ const UserManagement = () => {
                     status: user.Status,
                     type: activeTab
                 }));
-                
+
                 // Set data based on active tab
                 if (activeTab === 'riders') {
                     setRiders(transformedUsers);
                 } else {
                     setManagementUsers(transformedUsers);
                 }
-                
+
                 // Set pagination info
                 const total = res.data.TotalRecords || 0;
                 setTotalRecords(total);
                 setCurrentPage(page);
-                
+
                 // Calculate if there are more pages
                 const totalPages = Math.ceil(total / usersPerPage);
                 setHasMore(page < totalPages);
@@ -89,7 +98,7 @@ const UserManagement = () => {
         } catch (e: any) {
             console.error("Error fetching users:", e.response ? e.response.data : e);
             setError(e.response?.data?.message || 'Failed to fetch users');
-            
+
             // Clear data on error
             if (activeTab === 'riders') {
                 setRiders([]);
@@ -132,13 +141,64 @@ const UserManagement = () => {
             setCurrentPage(1);
             fetchUsers(1);
         }, 500); // 500ms debounce
-        
+
         return () => clearTimeout(timer);
     }, [filters]);
 
     const handleEdit = (userId: number) => {
         navigate(`/user-management/edit/${userId}`);
     };
+
+    const handleToggleStatus = async (userId: number, currentStatus: string) => {
+        try {
+            const isCurrentlyActive = currentStatus?.toLowerCase() === 'active';
+            const newStatus = !isCurrentlyActive;
+
+            const res = await CommonService.postWithSinglyQueryParam(
+                "User",
+                `deleteuser/${userId}`,
+                "isActive",
+                newStatus
+            );
+
+            if (res.status === 200 || res.data?.success) {
+                setSuccessMessage(`User status updated to ${newStatus ? 'Active' : 'Inactive'} successfully.`);
+                setTimeout(() => setSuccessMessage(null), 5000);
+                fetchUsers(currentPage);
+            }
+        } catch (e: any) {
+            console.error("Error toggling user status:", e);
+            setError(e.response?.data?.message || 'Failed to update user status');
+            setTimeout(() => setError(null), 5000);
+        }
+    };
+
+    const handleToggleClick = (userId: number, currentStatus: string) => {
+        const isCurrentlyActive = currentStatus?.toLowerCase() === 'active';
+        setSelectedUser({ id: userId, status: currentStatus });
+        if (isCurrentlyActive) {
+            setOpenDeleteModal(true);
+        } else {
+            setOpenActiveModal(true);
+        }
+    };
+
+    const confirmDelete = () => {
+        if (selectedUser) {
+            handleToggleStatus(selectedUser.id, selectedUser.status);
+            setOpenDeleteModal(false);
+            setSelectedUser(null);
+        }
+    };
+
+    const confirmActive = () => {
+        if (selectedUser) {
+            handleToggleStatus(selectedUser.id, selectedUser.status);
+            setOpenActiveModal(false);
+            setSelectedUser(null);
+        }
+    };
+
 
     const handleAddUser = () => {
         navigate('/user-management/add');
@@ -266,22 +326,20 @@ const UserManagement = () => {
                         <nav className="flex p-1 space-x-4 sm:space-x-8 overflow-x-auto" aria-label="Tabs">
                             <button
                                 onClick={() => handleTabChange('riders')}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                                    activeTab === 'riders'
+                                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'riders'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
+                                    }`}
                             >
                                 <UserCheck className="h-4 w-4 inline mr-2" />
-                                Riders 
+                                Riders
                             </button>
                             <button
                                 onClick={() => handleTabChange('management')}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                                    activeTab === 'management'
+                                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'management'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
+                                    }`}
                             >
                                 <Users className="h-4 w-4 inline mr-2" />
                                 Management
@@ -435,18 +493,17 @@ const UserManagement = () => {
                                                         <Edit className="h-3.5 w-3.5 mr-2" />
                                                         Edit
                                                     </button>
-                                                    {activeTab === 'management' && (
-                                                        <button
-                                                            className="inline-flex items-center px-2 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
-                                                            onClick={() => console.log("Toggle status for user:", user.id)}
-                                                        >
-                                                            {user.status === 'Active' ? (
-                                                                <UserX className="h-3.5 w-3.5" />
-                                                            ) : (
-                                                                <UserCheck className="h-3.5 w-3.5" />
-                                                            )}
-                                                        </button>
-                                                    )}
+                                                    <button
+                                                        className="inline-flex items-center px-2 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
+                                                        onClick={() => handleToggleClick(user.id, user.status)}
+                                                        title={user.status === 'Active' ? "Deactivate User" : "Activate User"}
+                                                    >
+                                                        {user.status === 'Active' ? (
+                                                            <UserX className="h-3.5 w-3.5 text-red-500 hover:text-red-700" />
+                                                        ) : (
+                                                            <UserCheck className="h-3.5 w-3.5 text-green-500 hover:text-green-700" />
+                                                        )}
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -496,18 +553,17 @@ const UserManagement = () => {
                                                 <Edit className="h-3.5 w-3.5 mr-2" />
                                                 Edit
                                             </button>
-                                            {activeTab === 'management' && (
-                                                <button
-                                                    className="inline-flex items-center px-2 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
-                                                    onClick={() => console.log("Toggle status for user:", user.id)}
-                                                >
-                                                    {user.status === 'Active' ? (
-                                                        <UserX className="h-3.5 w-3.5" />
-                                                    ) : (
-                                                        <UserCheck className="h-3.5 w-3.5" />
-                                                    )}
-                                                </button>
-                                            )}
+                                            <button
+                                                className="inline-flex items-center px-2 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
+                                                onClick={() => handleToggleClick(user.id, user.status)}
+                                                title={user.status === 'Active' ? "Deactivate User" : "Activate User"}
+                                            >
+                                                {user.status === 'Active' ? (
+                                                    <UserX className="h-3.5 w-3.5 text-red-500 hover:text-red-700" />
+                                                ) : (
+                                                    <UserCheck className="h-3.5 w-3.5 text-green-500 hover:text-green-700" />
+                                                )}
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -545,6 +601,26 @@ const UserManagement = () => {
                     )}
                 </div>
             </div>
+            {openDeleteModal && (
+                <DeleteConfirmationModal
+                    handleDeleteConfirm={confirmDelete}
+                    handleDeleteCancel={() => {
+                        setOpenDeleteModal(false);
+                        setSelectedUser(null);
+                    }}
+                    message="Confirm that you wish to inactivate this user?"
+                />
+            )}
+            {openActiveModal && (
+                <ActiveConfirmationModal
+                    handleActiveConfirm={confirmActive}
+                    handleActiveCancel={() => {
+                        setOpenActiveModal(false);
+                        setSelectedUser(null);
+                    }}
+                    message="Confirm that you wish to activate this user?"
+                />
+            )}
         </div>
     );
 };

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -649,6 +649,45 @@ namespace DofyEcom.Model
             catch (Exception ex)
             {
                 throw new ApplicationException("An unexpected error occurred while updating the user.", ex);
+            }
+        }
+
+        public async Task<bool> DeleteUser(int userId, bool isActive)
+        {
+            try
+            {
+                var user = this.FindById((long)userId);
+                if (user == null) return false;
+                user.IsActive = isActive;
+                user.Modified = DateTime.UtcNow;
+                this.UpdateItem(user);
+
+                var userLoginModel = new UserLoginModel(this.config, this.mapper, this.iPrincipal, this.context);
+                var loginData = userLoginModel.FindItem(x => x.UserId == userId);
+                if (loginData != null)
+                {
+                    loginData.IsActive = isActive;
+                    loginData.Modified = DateTime.UtcNow;
+                    userLoginModel.UpdateItem(loginData);
+                }
+
+                var userRoleMappingModel = new UserRoleMappingModel(this.config, this.mapper, this.iPrincipal, this.context);
+                var roleData = userRoleMappingModel.FindItem(x => x.UserId == userId);
+                if (roleData != null)
+                {
+                    roleData.IsActive = isActive;
+                    roleData.Modified = DateTime.UtcNow;
+                    userRoleMappingModel.UpdateItem(roleData);
+                }
+                return await Task.FromResult(true);
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new ApplicationException("A database error occurred while updating the user status.", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An unexpected error occurred while updating the user status.", ex);
             }
         }
 

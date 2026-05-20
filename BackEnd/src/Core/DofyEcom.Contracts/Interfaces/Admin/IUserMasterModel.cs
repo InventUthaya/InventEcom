@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,5 +20,6 @@ namespace DofyEcom.Contracts
 
         Task<long> UpdateUserDetails(int? id, string? userName, string? Email, string? CustomerNumber);
 
+        Task<bool> DeleteUser(int userId, bool isActive);
     }
 }
