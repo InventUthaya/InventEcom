@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.Contracts
+namespace DofyEcom.Contracts
 {
     using DofyEcom.ViewEntities;
 
@@ -35,6 +35,9 @@
 
         Task<ViewEntities.UserMaster> GetUserMaster(long userId);
 
+        Task<bool> ForgotPassword(string username);
+        Task<bool> ResendOTP(string username);
+        Task<bool> ResetPassword(string username, string otp, string newPassword);
     }
 }
 

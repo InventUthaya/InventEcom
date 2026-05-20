@@ -270,5 +270,51 @@ namespace DofyEcom.Model
 
             return userId;
         }
+
+        public async Task<bool> ForgotPassword(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username)) return false;
+
+            var validUser = this.FindItem(item => (item.Email.ToLower() == username.ToLower() || item.Phone.ToLower() == username.ToLower()) && item.IsActive == true);
+            if (validUser == null) return false;
+
+            string otpCode = this.GenerateOtp();
+            DateTime generatedAt = DateTimeExtensions.GetCurrentIST();
+            DateTime expiresAt = generatedAt.AddMinutes(5);
+
+            var otpModel = new AuthOTP
+            {
+                OTP = otpCode,
+                GeneratedTime = generatedAt,
+                ExpiredTime = expiresAt,
+                LoginId = validUser.Id
+            };
+
+            new AuthOTPModel(this.iConfig, this.mapper, this.iPrinciple).Post(otpModel);
+
+            var template = new EmailTemplatesModel(this.iConfig, this.mapper, this.iPrinciple, this.context);
+            long pendingemailId = template.LogForgotPasswordOTP(validUser.Id, otpCode);
+
+            return true;
+        }
+
+        public async Task<bool> ResendOTP(string username)
+        {
+            return await ForgotPassword(username);
+        }
+
+        public async Task<bool> ResetPassword(string username, string otp, string newPassword)
+        {
+            var validUser = this.FindItem(item => (item.Email.ToLower() == username.ToLower() || item.Phone.ToLower() == username.ToLower()) && item.IsActive == true);
+            if (validUser == null) return false;
+
+            bool isOtpValid = await VerifyOTP((int)validUser.Id, otp);
+            if (!isOtpValid) return false;
+
+            validUser.PasswordHash = Argon2.Hash(newPassword);
+            this.UpdateItem(validUser);
+
+            return true;
+        }
     }
 }

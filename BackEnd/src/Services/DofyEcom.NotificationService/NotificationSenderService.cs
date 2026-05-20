@@ -34,7 +34,7 @@ namespace DOFY.NotificationService
 
             if (Environment.UserInteractive)
             {
-                Console.WriteLine("Dofy Notification Service started as a Console Application");
+                Console.WriteLine("InventEcom Notification Service started as a Console Application");
                 Console.WriteLine(" 1. Run Service");
                 Console.WriteLine(" 2. Exit");
                 Console.Write("Enter Option: ");

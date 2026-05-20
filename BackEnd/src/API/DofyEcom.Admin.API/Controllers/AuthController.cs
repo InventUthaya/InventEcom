@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.Admin.API.Controllers
+namespace DofyEcom.Admin.API.Controllers
 {
     using System.Security.Claims;
     using System.Security.Principal;
@@ -85,6 +85,47 @@
                 return Ok(new { message = "OTP Validated successfully." });
 
             return Unauthorized(new { message = "Incorrect OTP" });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(string username, string mobile)
+        {
+            var identifier = !string.IsNullOrWhiteSpace(username) ? username : mobile;
+            if (string.IsNullOrWhiteSpace(identifier)) return BadRequest(new { message = "Username or mobile is required." });
+
+            var result = await this.Contract.ForgotPassword(identifier);
+            if (result)
+                return Ok(new { message = "OTP sent successfully.", data = identifier });
+
+            return BadRequest(new { message = "User not found." });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ResendOTP")]
+        public async Task<IActionResult> ResendOTP(string username, string mobile)
+        {
+            var identifier = !string.IsNullOrWhiteSpace(username) ? username : mobile;
+            if (string.IsNullOrWhiteSpace(identifier)) return BadRequest(new { message = "Username or mobile is required." });
+
+            var result = await this.Contract.ResendOTP(identifier);
+            if (result)
+                return Ok(new { message = "OTP resent successfully." });
+
+            return BadRequest(new { message = "User not found." });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("updatePassword/{username}/{otp}/{newPassword}")]
+        public async Task<IActionResult> ResetPassword(string username, string otp, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(username) || username == "undefined") return BadRequest(new { message = "Username or mobile is required." });
+
+            var result = await this.Contract.ResetPassword(username, otp, newPassword);
+            if (result)
+                return Ok(new { message = "Password reset successfully." });
+
+            return BadRequest(new { message = "Invalid OTP or User not found." });
         }
 
 

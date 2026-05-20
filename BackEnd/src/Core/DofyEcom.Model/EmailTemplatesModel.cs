@@ -197,6 +197,40 @@ public class EmailTemplatesModel : BaseModel<DBO.EmailTemplates>, IEmailTemplate
     }
 
 
+     public long LogForgotPasswordOTP(long loginId, string otpCode)
+    {
+        string dofyContctNo = this.config.Value?.ApplicationConfiguration?.DofyContactNo ?? string.Empty;
+        var userLogin = new UserLoginModel(this.config, this.mapper, this.iPrincipal, this.context).Get(loginId);
+        var person = new UserMasterModel(this.config, this.mapper, this.iPrincipal, this.context).Get(userLogin.UserId);
+        string customerName = person?.FullName;
+        customerName = string.IsNullOrEmpty(customerName) ? "Customer" : customerName;
+
+        IEnumerable<DBO.EmailTemplates> emailTemplates = this.FindItems(item => item.EnumName == DOFYEcomConstants.EmailTemplatesInfo.FORGOT_PASSWORD_OTP);
+        if (emailTemplates?.Count() > 0)
+        {
+            long emailTemplateId = default;
+            foreach (var item in emailTemplates)
+            {
+                if (item.EntityTypeId == DOFYEcomConstants.EMAIL_ENTITY_TYPE)
+                {
+                    string parameters = string.Format(@"CustomerName=""{0}"", OTP=""{1}"",DOFYECOMContactNo=""{2}"", Imagepath=""{3}""", customerName, otpCode, dofyContctNo, this.emailImagePath);
+                    emailTemplateId = new PendingEmailModel(this.config, this.mapper, this.iPrincipal, this.context).AddItem(userLogin?.Email, item.EmailGroupId, null, parameters);
+                }
+
+                if (item.EntityTypeId == DOFYEcomConstants.SMS_ENTITY_TYPE)
+                {
+                    string parameters = string.Format(@"CustomerName=""{0}"", OTP=""{1}""", customerName, otpCode);
+                    emailTemplateId = new PendingEmailModel(this.config, this.mapper, this.iPrincipal, this.context).AddItem(userLogin.Phone, item.EmailGroupId, null, parameters);
+                }
+            }
+
+            return emailTemplateId;
+        }
+
+        return default;
+    }
+
+
 
     //public async Task<long> GetEmailTemplateId(string enumName)
     //{

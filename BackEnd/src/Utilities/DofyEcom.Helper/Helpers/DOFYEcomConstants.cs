@@ -48,6 +48,7 @@ namespace DofyEcom.Helper
         public static class EmailTemplatesInfo
         {
             public const string LOGIN_OTP = "Login_OTP";
+            public const string FORGOT_PASSWORD_OTP = "ForgotPassword_OTP";
             public const string ORDER_COMPLETED_OTP = "Order_Completed_OTP";
 
         }
