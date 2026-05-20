@@ -122,6 +122,7 @@ const BuySubMenu = ({
 
   const handleItemClick = (subCategoryName: string, itemCategoryName: string, name: string) => {
     router.push(`/buy/itemCategory?${name}/CategoryName?${subCategoryName}`);
+    setHoveredCategory(null);
   };
 
   const getCategoryColor = (index: number) => {
@@ -146,7 +147,10 @@ const BuySubMenu = ({
                   ? "text-gray-900"
                   : "text-gray-700 hover:text-gray-900"
                   }`}
-                onClick={() => router.push(`/buy/category?${encodeURIComponent(category.CategoryName)}`)}
+                onClick={() => {
+                  router.push(`/buy/category?${encodeURIComponent(category.CategoryName)}`);
+                  setHoveredCategory(null);
+                }}
               >
                 {category.CategoryName}
 

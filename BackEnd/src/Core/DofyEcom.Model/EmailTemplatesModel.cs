@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.Model;
+namespace DofyEcom.Model;
 
 using AutoMapper;
 using DataTables.AspNet.Core;
@@ -153,6 +153,39 @@ public class EmailTemplatesModel : BaseModel<DBO.EmailTemplates>, IEmailTemplate
                 if (item.EntityTypeId == DOFYEcomConstants.SMS_ENTITY_TYPE)
                 {
                     string parameters = string.Format(@"CustomerName=""{0}"", OTP=""{1}""", customerName, password);
+                    emailTemplateId = new PendingEmailModel(this.config, this.mapper, this.iPrincipal, this.context).AddItem(userLogin.Phone, item.EmailGroupId, null, parameters);
+                }
+            }
+
+            return emailTemplateId;
+        }
+
+        return default;
+    }
+
+
+    public long LogOrderOTP(long loginId, string password, long orderId)
+    {
+        string dofyContctNo = this.config.Value?.ApplicationConfiguration?.DofyContactNo ?? string.Empty;
+        var userLogin = new UserLoginModel(this.config, this.mapper, this.iPrincipal, this.context).Get(loginId);
+        var person = new UserMasterModel(this.config, this.mapper, this.iPrincipal, this.context).Get(userLogin.UserId);
+        string customerName = person?.FullName;
+        customerName = string.IsNullOrEmpty(customerName) ? "Customer" : customerName;
+        IEnumerable<DBO.EmailTemplates> emailTemplates = this.FindItems(item => item.EnumName == DOFYEcomConstants.EmailTemplatesInfo.ORDER_COMPLETED_OTP);
+        if (emailTemplates?.Count() > 0)
+        {
+            long emailTemplateId = default;
+            foreach (var item in emailTemplates)
+            {
+                if (item.EntityTypeId == DOFYEcomConstants.EMAIL_ENTITY_TYPE)
+                {
+                    string parameters = string.Format(@"CustomerName=""{0}"", OTP=""{1}"",OrderId=""{2}"",DOFYECOMContactNo=""{3}"", Imagepath=""{4}""", customerName, password, orderId, dofyContctNo, this.emailImagePath);
+                    emailTemplateId = new PendingEmailModel(this.config, this.mapper, this.iPrincipal, this.context).AddItem(userLogin?.Email, item.EmailGroupId, null, parameters);
+                }
+
+                if (item.EntityTypeId == DOFYEcomConstants.SMS_ENTITY_TYPE)
+                {
+                    string parameters = string.Format(@"CustomerName=""{0}"", OTP=""{1}"",OrderId=""{2}""", customerName, password, orderId);
                     emailTemplateId = new PendingEmailModel(this.config, this.mapper, this.iPrincipal, this.context).AddItem(userLogin.Phone, item.EmailGroupId, null, parameters);
                 }
             }

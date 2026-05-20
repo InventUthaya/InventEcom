@@ -214,7 +214,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                     htmlFor="FirstName"
                                     className="text-sm lg:text-md 2xl:text-base font-semibold"
                                 >
-                                    First Name <span className="text-red-600">*</span>
+                                    Full Name <span className="text-red-600">*</span>
                                 </label>
                                 <input
                                     id="FirstName"
@@ -223,9 +223,9 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
                                     {...register("FirstName", { required: true, onChange: (e: any) => { setValue("FirstName", e.target.value); clearErrors("FirstName"); } })}
                                 />
-                                {errors.FirstName && <p className="text-xs text-red-700 font-semibold">Please Enter First Name</p>}
+                                {errors.FirstName && <p className="text-xs text-red-700 font-semibold">Please Enter Full Name</p>}
                             </div>
-                            <div className="flex flex-col gap-2">
+                            {/* <div className="flex flex-col gap-2">
                                 <label
                                     htmlFor="LastName"
                                     className="text-sm lg:text-md 2xl:text-base font-semibold capitalize"
@@ -238,7 +238,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                     placeholder="enter your name"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
                                 />
-                            </div>
+                            </div> */}
                             <div className="flex flex-col gap-2">
                                 <label
                                     htmlFor="PhoneNumber"
@@ -249,11 +249,11 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                 <input
                                     id="PhoneNumber"
                                     inputMode="numeric"
-                                    minLength={9}
+                                    minLength={10}
                                     maxLength={10}
                                     placeholder="Enter Your Mobile number"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("PhoneNumber", { required: true, minLength: 9, maxLength: 9, onChange: (e: any) => { setValue("PhoneNumber", HelperConstant.numberOnlyRegex.regex.test(e.target.value) ? e.target.value : ""); clearErrors("PhoneNumber"); } })}
+                                    {...register("PhoneNumber", { required: true, minLength: 10, maxLength: 10, onChange: (e: any) => { setValue("PhoneNumber", HelperConstant.numberOnlyRegex.regex.test(e.target.value) ? e.target.value : ""); clearErrors("PhoneNumber"); } })}
                                 />
                                 {errors.PhoneNumber && errors.PhoneNumber.type === "required" && (<p className="text-xs font-semibold text-red-700">Please Enter Mobile Number</p>)}
                                 {errors.PhoneNumber && (errors.PhoneNumber.type === "minLength" || errors.PhoneNumber.type === "maxLength") && (<p className="text-xs font-semibold text-red-700">Please enter valid Mobile Number</p>)}

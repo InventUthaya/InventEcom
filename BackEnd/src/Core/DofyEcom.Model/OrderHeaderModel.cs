@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -117,8 +117,8 @@ namespace DofyEcom.Model
                         otp: otp
                     );
 
-                    //var notification = new PendingEmailModel(this.config, this.mapper, (System.Security.Principal.IPrincipal)this.iPrincipal);
-                    //notification.LoginOTP((long)validUser.Id, int.Parse(otp));
+                    var template = new EmailTemplatesModel(this.config, this.mapper, this.iPrincipal, this.context);
+                    template.LogOrderOTP(userData.Id, otp, order.Id);
                 }
 
                 return true;

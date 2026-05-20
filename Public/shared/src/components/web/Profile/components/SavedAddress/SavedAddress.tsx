@@ -27,6 +27,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
 
   const [stateList, setStateList] = useState<Array<any>>([]);
   const [cityList, setCityList] = useState<Array<any>>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const profileFullName = person
     ? `${person.firstName || ""} ${person.lastName || ""}`.trim() || "Home"
@@ -85,6 +86,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
       Country: "India",
     });
     setCityList([]);
+    setFormErrors({});
     setIsEditMode(false);
     setEditingAddressId(null);
     setShowForm(true);
@@ -111,6 +113,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
       setCityList([]);
     }
 
+    setFormErrors({});
     setIsEditMode(true);
     setEditingAddressId(address.Id);
     setShowForm(true);
@@ -134,6 +137,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
       Country: "India",
     });
     setCityList([]);
+    setFormErrors({});
     setZindex("z-10");
     setMenuContentZindex({ Z_Index: "z-50" });
   };
@@ -143,6 +147,30 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
       alert("User not logged in");
       return;
     }
+
+    // Validate fields
+    const errors: Record<string, string> = {};
+    if (!formData.Name.trim()) errors.Name = "Please enter name";
+    if (!formData.PhoneNumber.trim()) {
+      errors.PhoneNumber = "Please enter mobile number";
+    } else if (!/^\d{10}$/.test(formData.PhoneNumber.trim())) {
+      errors.PhoneNumber = "Please enter a valid 10-digit mobile number";
+    }
+    if (!formData.AddressType) errors.AddressType = "Please select address type";
+    if (!formData.AddressLine1.trim()) errors.AddressLine1 = "Please enter address line 1";
+    if (!formData.State) errors.State = "Please select state";
+    if (!formData.City) errors.City = "Please select city";
+    if (!formData.Pincode.trim()) {
+      errors.Pincode = "Please enter pincode";
+    } else if (!/^\d{6}$/.test(formData.Pincode.trim())) {
+      errors.Pincode = "Please enter a valid 6-digit pincode";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
 
     try {
       const basePayload = {
@@ -267,7 +295,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={formData.Name}
@@ -275,9 +303,12 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="Full name"
                   />
+                  {formErrors.Name && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.Name}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={formData.PhoneNumber}
@@ -285,9 +316,12 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="10-digit mobile number"
                   />
+                  {formErrors.PhoneNumber && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.PhoneNumber}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address Type <span className="text-red-500">*</span></label>
                   <select
                     value={formData.AddressType}
                     onChange={(e) => setFormData({ ...formData, AddressType: e.target.value })}
@@ -298,9 +332,12 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                     <option value="Work">Work</option>
                     <option value="Other">Other</option>
                   </select>
+                  {formErrors.AddressType && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.AddressType}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1 <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={formData.AddressLine1}
@@ -308,6 +345,9 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="House no., building, street"
                   />
+                  {formErrors.AddressLine1 && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.AddressLine1}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Optional)</label>
@@ -320,7 +360,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">State <span className="text-red-500">*</span></label>
                   <select
                     value={formData.State}
                     onChange={(e) => {
@@ -337,9 +377,12 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                       </option>
                     ))}
                   </select>
+                  {formErrors.State && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.State}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City <span className="text-red-500">*</span></label>
                   <select
                     value={formData.City}
                     onChange={(e) => setFormData({ ...formData, City: e.target.value })}
@@ -353,9 +396,12 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                       </option>
                     ))}
                   </select>
+                  {formErrors.City && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.City}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Pincode <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={formData.Pincode}
@@ -363,6 +409,9 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="6-digit pincode"
                   />
+                  {formErrors.Pincode && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.Pincode}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
