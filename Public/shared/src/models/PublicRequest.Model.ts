@@ -1,0 +1,51 @@
+export interface IPublicRequestModel {
+    Id?: number,
+    Created?: any,
+    CreatedBy?: number,
+    Active?: boolean,
+    Modified?: any,
+    ModifiedBy?: number,
+    ValidationErrors?: {},
+    OrderId: number,
+    Name: string,
+    MobileNumber: string,
+    Email: string,
+    CityId: number,
+    Area: string,
+    ProductTypeId: number,
+    BrandName: string,
+    BrandModelName: string,
+    ModelVariant: string,
+    ModelVariantId: number,
+}
+
+export interface IFindLocation {
+    Name: string,
+    Email: string,
+    MobileNumber: string,
+    ProductTypeId?: any,
+    BrandName?: any,
+    BrandModelName?: any,
+    CityName?: any,
+    StateName?:any,
+    BrandSeriesName?: any,
+    Model?: any,
+    ModelVariant?: any,
+    CityId?: any,
+    StateId?: any,
+    ZipCode?: any,
+    PinCode?: any,
+    Area: string,
+    LocationCode? : string
+}
+
+export interface IFindYourDeviceModel {
+    DeviceType: string,
+    BrandModelName: string,
+    BrandName: string,
+    ModalName: string,
+    ModelVariant: string,
+    Name: string,
+    MobileNumber: string,
+    Email: string,
+}

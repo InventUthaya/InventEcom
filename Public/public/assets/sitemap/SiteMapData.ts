@@ -1,0 +1,1 @@
+export const pageNames = ["faq", "about-us", "contact-us", "terms-of-use", "privacy-policy", "corporate-trend", "our-store","blogs"]

@@ -1,0 +1,7 @@
+.next
+/pages
+/styles
+/components
+package-lock.json
+/out
+node_modules/

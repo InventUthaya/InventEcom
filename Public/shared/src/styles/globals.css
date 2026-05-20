@@ -1,0 +1,247 @@
+@import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap");
+@import "./animations.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";  */
+
+@layer components {
+  .masonry {
+    column-count: 3;
+  }
+  .break-inside {
+    break-inside: avoid-column;
+    page-break-inside: avoid;
+    overflow: hidden;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  /* For IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .brand-scroll:hover .brand-scroll-child {
+    animation-play-state: paused;
+  }
+}
+
+@layer utilities {
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+  .animation-delay-700 {
+    animation-delay: 700ms;
+  }
+  .animation-delay-800 {
+    animation-delay: 800ms;
+  }
+  .animation-delay-900 {
+    animation-delay: 900ms;
+  }
+  .animation-delay-1000 {
+    animation-delay: 1s;
+  }
+}
+
+* {
+  font-family: Figtree;
+}
+
+:root {
+  --primary-bg: #f9fafa;
+  --primary-fg: #050505;
+  --primary-buy: #1e4496;
+  --primary-sell: #ea002a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--primary-bg);
+  color: var(--primary-fg);
+  overflow-x: hidden;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #ececec;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #b2b2b2;
+  border-radius: 50px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  --moz-appearance: textfield;
+}
+input[type="number"]:focus {
+  border-color: #ea002a; /* Red border color */
+  outline: none;
+}
+
+.suggestions-list {
+  border: 1px solid #ccc;
+  border-top: none;
+  list-style-type: none;
+  /* margin: 0; */
+  padding: 0;
+  position: relative;
+  max-height: 120px;
+  overflow-y: auto;
+  width: 100%;
+  background-color: white;
+  color: #050505;
+  border-radius: 5px;
+  margin-top: 6px;
+  text-align: start;
+}
+
+.suggestions-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions-list li.active {
+  background-color: #FCD8DB;
+}
+
+.suggestions-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.loader-text {
+  width: max-content;
+  font-weight: 700;
+  font-size: 34px;
+  background: radial-gradient(circle closest-side, #e51010 94%, #0000) right/calc(200% - 1em) 100%;
+  animation: l24 1s infinite alternate linear;
+  margin-top: 10px;
+}
+.loader-text::before {
+  content: "DOFY";
+  line-height: 1em;
+  color: #0000;
+  background: inherit;
+  background-image: radial-gradient(circle closest-side, #fff 94%, #e51010);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.requote-text {
+  width: max-content;
+  font-weight: 800;
+  font-family: Figtree;
+  font-size: 34px;
+  background: radial-gradient(circle closest-side, #EA002A 94%, #0000) right/calc(200% - 1em) 100%;
+  animation: l24 1s infinite alternate linear;
+  margin-top: 40px;
+}
+.requote-text::before {
+  content: "Re-Evaluate...";
+  line-height: 1em;
+  color: #0000;
+  background: inherit;
+  background-image: radial-gradient(circle closest-side, #fff 94%, #EA002A);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+@keyframes l24 {
+  100% {
+    background-position: left
+  }
+}
+
+.border-theme {
+  border: 1px solid black !important;
+}
+
+.otp-field{
+  width: 40px !important;
+  height: 40px !important;
+  border: 1px solid #DFDFDF;
+  border-radius: 0.5rem;
+  margin-left: 16px;
+  text-align: center;
+  font-size: 1.25rem;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.otp-field::-webkit-inner-spin-button,
+.otp-field::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.otp-field:first-child{
+  margin-left: 0px;
+}
+
+@media screen and (min-width: 1024px)  {
+  .otp-field{
+    width: 55px !important;
+    height: 45px !important;
+  }
+}
+
+.profile-input:disabled{
+  background-color: #FAFAFA;
+}
+
+@media (min-width: 2560px) {
+  .logout-layer {
+    right: 630px !important;
+  }
+}
+
+.social-icon {
+  cursor: pointer;
+  transition: transform 0.3s, opacity 0.3s;
+}
+.social-icon:hover {
+  transform: scale(1.3);
+  opacity: 0.7;
+}

@@ -1,0 +1,93 @@
+import { getUserLanguage } from "./Helper";
+
+export const HelperConstant = {
+    imageAPI: process.env.NEXT_PUBLIC_CDN_URL,
+    publicURL: process.env.NEXT_PUBLIC_PUBLIC_URL,
+    defaultAPIKey: process.env.NEXT_PUBLIC_PUBLIC_API_KEY,
+    defaultSellUrl: "sell-your-old-",
+    osTypeId: { ANDROID: 2, IOS: 3 },
+    serviceTypeId: { SELL: 2, REPAIR: 3 },
+    roleId: { USER: 4 },
+    orderStatus: {
+        0: 'Pending',
+        10: 'Order Confirmed',
+        20: 'Out for Delivery',
+        40: 'Cancelled',
+        30: 'Delivered',
+        50: 'Rejected',
+    } as Record<number, string>,
+    returnOrderStatus: {
+        0: 'Replacement Requested',
+        10: 'Replacement Accepted',
+        20: 'Replacement Compeleted',
+        50: 'Replacement Rejected'
+    } as Record<number, string>,
+    orderStatusTrack: {
+        10: 'Order Confirmed',
+        20: 'Dispatched',
+        30: 'Out of Delivery',
+        40: 'Delivered',
+    } as Record<number, string>,
+    orderStatusId: { OrderConfirmed: 10, Dispatched: 20, Delivered: 30, OutofDelivery: 40 },
+    returnOrderStatusId: { ReplacementRequested: 0, ReplacementAccepted: 10, ReplacementCompeleted: 20 ,ReplacementRejected: 50},
+    dashboardEntityTypeId: { Testimonial: 5, Youtube: 6, Blogs: 8 },
+    emailPattern: { pattern: /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/ },
+    numberOnlyRegex: { regex: /^[0-9\b]+$/ },
+    defaultProductTypeId: 12,
+    otpVerificationTime: { timer: 120 },
+    productTypeId: { phone: 12, TV: 18, smart_watch: 19, gaming_console: 16, earbud: 21, more: 0, desktop: 17, laptop: 13, tablet: 15 },
+    productTypeName: [{ Name: "phone" }, { Name: "tablet" }, { Name: "laptop" }, { Name: "smartwatch" }, { Name: "earbud" }, { Name: "gaming-console" }, { Name: "tv" }, { Name: "desktop" }],
+    questionnaireType: {
+        DeviceDetails: 1,
+        FunctionalDetails: 2,
+        PossessionDetails: 3,
+        DeviceScreenDetails: 4,
+        DeviceBodyDetails: 5,
+        DeviceAge: 6,
+        BillingSection: 7,
+        GameCDs: 8,
+        PhysicalCondition: 9,
+        ScreenCondition: 10,
+        SystemConfiguration: 11,
+        AdditionalFeatures: 12,
+        AdditionalLens: 13
+    },
+    cancellationList: { othersId: 3, othersEnum: "Other_reasons" },
+    androidAppLink: "https://play.google.com/store/apps/details?id=com.dofy.public",
+    iosAppLink: "https://apps.apple.com/us/app/dofy/id1620126058",
+    twitterLink: getUserLanguage() == "in_en" ? "https://twitter.com/dofyofficial?s=21&t=bB5ZqG8IPXTU1PC8VZrbNw" : "",
+    instagramLink: getUserLanguage() == "in_en" ? "https://www.instagram.com/dofyapp/?igshid=YmMyMTA2M2Y=" : "",
+    facebookLink: getUserLanguage() == "in_en" ? "https://www.facebook.com/dofyapp/" : "",
+    noVariant: "No Variant",
+    noUpdate: "Not Now",
+    updateTime: 8,
+    metaPages: {
+        Home: "Home",
+        About: "About",
+        ContactUs: "ContactUs",
+        Faq: "Faq",
+        PrivacyPolicy: "PrivacyPolicy",
+        TermsOfUse: "TermsOfUse",
+        ViewOrder: "ViewOrder",
+        OurStores: "OurStores",
+        Blogs: "Blogs",
+        Cart: "Cart",
+        Profile: "Profile",
+        MyOrders: "MyOrders",
+        BulkPurchase: "BulkPurchase",
+        RequestForDelivery: "RequestForDelivery",
+    },
+    paymentTypeEnumName: {
+        Cash: "Cash",
+        DOFY_Wallet: "Invent_Wallet",
+        Cash_On_Pickup: "Cash_On_Pickup",
+        UPI_Payment: "UPI_Payment",
+        Net_Banking: "Net_Banking"
+
+    },
+    FeedbackStatus: {
+        Open: 1,
+        InProgress: 2,
+        Completed: 3
+    }
+}

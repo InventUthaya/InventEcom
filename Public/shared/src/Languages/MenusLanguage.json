@@ -1,0 +1,54 @@
+{
+    "in_en": {
+        "My_Orders": "My Orders",
+        "Login_Sign_up": "Login / Sign up",
+        "Profile": "Profile",
+        "Logout": "Logout",
+        "No_Gadget_Found_for": "No Gadget Found for ",
+        "Sell_Device": "Sell Device",
+        "Choose_your_device_to_sell": "Choose your device to sell",
+        "Corporate_Trade_In": "Corporate Trade-In",
+        "Our_Stores": "Our Stores",
+        "Blogs": "Blogs",
+        "Select_your_location": "Select your delivery location",
+        "Cant_Find_Your_Area": "Can't Find Your Area?",
+        "Request_a_delivery": "Request a Delivery",
+        "Based_on_your_Location_We_will_service_for_you": "Based on your Location, We will service for you",
+        "Switch_Location":"Switch Location"
+    },
+    "ae_ar": {
+        "My_Orders": "My Orders",
+        "Login_Sign_up": "Login / Sign up",
+        "Profile": "Profile",
+        "Logout": "Logout",
+        "No_Gadget_Found_for": "No Gadget Found for ",
+        "Sell_Device": "Sell Device",
+        "Choose_your_device_to_sell": "Choose your device to sell",
+        "Corporate_Trade_In": "Corporate Trade-In",
+        "Our_Stores": "Our Stores",
+        "Blogs": "Blogs",
+        "Select_your_location": "Select your delivery location",
+        "Cant_Find_Your_Area": "Can't Find Your Area?",
+        "Request_a_delivery": "Request a Delivery",
+        "Based_on_your_Location_We_will_service_for_you": "Based on your Location, We will service for you",
+        "Switch_Location":"Switch Location"
+
+    },
+    "ae_en": {
+        "My_Orders": "My Orders",
+        "Login_Sign_up": "Login / Sign up",
+        "Profile": "Profile",
+        "Logout": "Logout",
+        "No_Gadget_Found_for": "No Gadget Found for ",
+        "Sell_Device": "Sell Device",
+        "Choose_your_device_to_sell": "Choose your device to sell",
+        "Corporate_Trade_In": "Corporate Trade-In",
+        "Blogs": "Blogs",
+        "Our_Stores": "Our Stores",
+        "Select_your_location": "Select your delivery location",
+        "Cant_Find_Your_Area": "Can't Find Your Area?",
+        "Request_a_delivery": "Request a Delivery",
+        "Based_on_your_Location_We_will_service_for_you": "Based on your Location, We will service for you",
+        "Switch_Location":"Switch Location"
+    }
+}

@@ -1,0 +1,50 @@
+@keyframes mobmenu {
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes buyDropdown {
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes buyDropdownContent {
+  0% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+@keyframes slider {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes opacity {
+  100% {
+    opacity: 1;
+    top: 0;
+  }
+}
+
+@keyframes opacityBottom {
+  100% {
+    opacity: 1;
+    bottom: 0;
+  }
+}
+
+
+@keyframes opacity1 {
+  100% {
+    opacity: 1;
+  }
+}

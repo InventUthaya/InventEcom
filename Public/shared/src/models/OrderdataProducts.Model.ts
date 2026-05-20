@@ -1,0 +1,94 @@
+export interface localProductdata {
+    AdditionalShippingCharge: number;
+    AttributeChoiceBehaviour: number;
+    AutomaticallyAddRequiredProducts: boolean;
+    AvailableForPreOrder: boolean;
+    BackorderModeId: number;
+    BasePriceAmount: number;
+    BasePriceBaseAmount: number;
+    BasePriceEnabled: boolean;
+    BasePriceMeasureUnit: string;
+    BundlePerItemPricing: boolean;
+    BundlePerItemShipping: boolean;
+    BundlePerItemShoppingCart: boolean;
+    BundleTitleText: string | null;
+    CallForPrice: boolean;
+    ComparePriceLabelId: string | null;
+    Condition: string;
+    CountryOfOriginId: string | null;
+    CreatedOnUtc: string;
+    CustomerEntersPrice: boolean;
+    CustomsTariffNumber: string | null;
+    Deleted: boolean;
+    DeliveryTimeId: string | null;
+    DisableBuyButton: boolean;
+    DisableWishlistButton: boolean;
+    DisplayOrder: number;
+    DisplayStockAvailability: boolean;
+    DisplayStockQuantity: boolean;
+    FullDescription: string | null;
+    Gtin: string | null;
+    HasDiscountsApplied: boolean;
+    HasPreviewPicture: boolean;
+    HasTierPrices: boolean;
+    Height: number;
+    HomePageDisplayOrder: number;
+    Id: number;
+    IsFreeShipping: boolean;
+    IsRecurring: boolean;
+    IsShipEnabled: boolean;
+    IsSystemProduct: boolean;
+    IsValid: boolean;
+    Length: number;
+    LowStockActivityId: number;
+    LowestAttributeCombinationPrice: number;
+    MainPictureId: number;
+    ManufacturerPartNumber: string | null;
+    MaximumCustomerEnteredPrice: number;
+    MetaDescription: string | null;
+    MetaKeywords: string | null;
+    MetaTitle: string | null;
+    MinStockQuantity: number;
+    MinimumCustomerEnteredPrice: number;
+    NotifyAdminForQuantityBelow: number;
+    OldPrice: number;
+    ParentGroupedProductId: number;
+    Price: number;
+    ProductAttribute: string;
+    ProductAttributeId: number;
+    ProductCost: number;
+    ProductName: string;
+    ProductTemplateId: number;
+    ProductTypeId: number;
+    ProductVariantAttributeValue: string;
+    Published: boolean;
+    QuantityUnitId: string | null;
+    RequireOtherProducts: boolean;
+    RequiredProductIds: string | null;
+    ShortDescription: string | null;
+    ShowOnHomePage: boolean;
+    SpecialPrice: number | null;
+    SpecialPriceEndDateTimeUtc: string | null;
+    SpecialPriceStartDateTimeUtc: string | null;
+    SpecificationAttributeName: string | null;
+    SpecificationAttributeOptionName: string | null;
+    SystemName: string | null;
+    TaxCategoryId: number;
+    UpdatedOnUtc: string;
+    ValidationErrors: {
+      Items: any[];
+    };
+    Visibility: number;
+    VisibleIndividually: boolean;
+    Weight: number;
+    Width: number;
+  }
+  
+  export interface localOrderData {
+    customerId: string;
+    productId: number;
+    storeId: number;
+    Product: localProductdata[];
+  }
+  
+  

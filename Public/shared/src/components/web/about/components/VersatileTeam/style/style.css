@@ -1,0 +1,14 @@
+.container {
+    background-color: #050505b2;
+    backdrop-filter: blur(10px);
+}
+
+.container:hover > .content-box {
+    top: 55%; /* TODO: need to be changed into (100% - height of content-box element) */
+}
+
+@media (min-width: 768px) {
+    .container:hover > .content-box {
+        top: 68%; /* TODO: need to be changed into (100% - height of content-box element) */
+    }
+}
