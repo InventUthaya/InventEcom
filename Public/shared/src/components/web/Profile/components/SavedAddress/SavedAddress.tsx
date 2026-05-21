@@ -208,9 +208,9 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
     }
   };
 
-  const handleDelete = async (encryptedId?: string) => {
-  if (!encryptedId || typeof encryptedId !== 'string') {
-    console.error("Invalid or missing EncryptedAddressId");
+  const handleDelete = async (encryptedId?: string | number) => {
+  if (encryptedId === undefined || encryptedId === null || encryptedId === "") {
+    console.error("Invalid or missing AddressId");
     alert("Cannot delete address: Invalid ID");
     return;
   }
@@ -221,8 +221,9 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
   }
 
   try {
-    console.log("Calling remove API with:", encryptedId, personId); // ← Debug log
-    await UserAddressServices.remove(encryptedId, personId);
+    const idStr = String(encryptedId);
+    console.log("Calling remove API with:", idStr, personId); // ← Debug log
+    await UserAddressServices.remove(idStr, personId);
     setReloader(!reloader);
   } catch (err: any) {
     console.error("Delete API failed:", err);

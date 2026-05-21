@@ -20,7 +20,7 @@ class UserAddressServices {
 
     remove(id: string, personId: any) {
         isTokenExpired();
-        return http.get(`${this.serviceName}/Remove?${id}?personId=${personId}`).catch((err: Error) => {
+        return http.get(`${this.serviceName}/Remove?id=${id}&personId=${personId}`).catch((err: Error) => {
             throw err?.message;
         })
     }

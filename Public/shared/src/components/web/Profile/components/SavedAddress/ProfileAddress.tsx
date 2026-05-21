@@ -15,8 +15,8 @@ type AddressDataProps = {
   setIsEdit: SetStateAction<any>;
   RemoveAddressHandler: (id: any) => void;
   addressHandler: (addressId: any, type: "view" | "edit") => void;
-  setDelete: SetStateAction<any>;
-  delet: boolean;
+  setDelete?: SetStateAction<any>;
+  delet?: boolean;
   personId: any;
   defaultValues: IAddressModel;
 };
@@ -38,6 +38,7 @@ const ProfileAddress = ({
   const [addressId, setAddressId] = useState<string | number>(0);
   const [billingAddressIds, setBillingAddressIds] = useState<string[]>([]);
   const [isOrder, setIsOrder] = useState<boolean>(false);
+  const [localDelete, setLocalDelete] = useState<boolean>(false);
 
   const personIds = getLocalStorage()?.PersonId;
 
@@ -50,14 +51,14 @@ const ProfileAddress = ({
       setAddressId(EncryptedAddressId);
     }
 
-    if (!delet) {
+    if (!localDelete) {
       setZindex("z-50");
     } else {
       setZindex("z-10");
       setIsOrder(false);
     }
 
-    setDelete((prev: boolean) => !prev);
+    setLocalDelete((prev: boolean) => !prev);
   };
 
   const EditHandler = (EncryptedAddressId: string | number) => {
@@ -149,7 +150,7 @@ const ProfileAddress = ({
           </label>
         ))}
 
-      {delet && (
+      {localDelete && (
         <DeleteConfirmation
           handleDeleteCancel={DeleteHandler}
           handleDeleteConfirm={() => RemoveAddressHandler(addressId)}
