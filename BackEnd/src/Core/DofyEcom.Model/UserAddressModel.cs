@@ -91,8 +91,22 @@ namespace DofyEcom.Model
 
         public long Put(UserAddress item)
         {
+            if (item.isDefault == 1)
+            {
+                var existingAddresses = this.FindItems(x =>
+                    x.UserId == item.UserId &&
+                    x.Id != item.Id &&
+                    x.IsActive == true);
+
+                foreach (var address in existingAddresses)
+                {
+                    address.isDefault = 0;
+                    this.UpdateItem(address);
+                }
+            }
             var mappedItem = this.mapper.Map<ViewEntities.UserAddress, DBO.UserAddress>(item);
             this.UpdateItem(mappedItem);
+
             return item.Id;
         }
 
