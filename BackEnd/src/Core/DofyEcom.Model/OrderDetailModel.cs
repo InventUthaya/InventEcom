@@ -352,8 +352,18 @@ namespace DofyEcom.Model
             parameters.Add("@StatusID", item.StatusId);
             parameters.Add("@FromDate", item.FromDate);
             parameters.Add("@ToDate", item.ToDate);
-            parameters.Add("@pageIndex", item.OffsetStart);
-            parameters.Add("@pageSize", item.RowsPerPage);
+
+            int pageSize = item.RowsPerPage ?? 10;
+            if (pageSize <= 0) pageSize = 10;
+
+            int pageIndex = 1;
+            if (item.OffsetStart.HasValue && item.OffsetStart.Value > 0)
+            {
+                pageIndex = (item.OffsetStart.Value - 1) / pageSize + 1;
+            }
+
+            parameters.Add("@pageIndex", pageIndex);
+            parameters.Add("@pageSize", pageSize);
 
             var results = this.ExecStoredProcedure<OrderResponseModel>(Database.SP_GetOrders, parameters);
 
@@ -452,7 +462,7 @@ namespace DofyEcom.Model
                 <td class='text-center'>{item.Quantity}</td>
                 <td class='text-right'>{item.UnitPrice:F2}</td>
                 <td class='text-right'>{item.TaxAmount:F2}</td>
-                <td class='text-right'>{item.TotalPrice:F2}</td>
+                <td class='text-right'>{(item.TotalPrice + item.TaxAmount):F2}</td>
             </tr>");
             }
             html = html.Replace("{itemrows}", itemRows.ToString());
