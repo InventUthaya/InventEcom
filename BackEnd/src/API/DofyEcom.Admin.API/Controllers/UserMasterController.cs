@@ -151,5 +151,36 @@ namespace DofyEcom.Admin.API.Controllers
                 return StatusCode(500, new { message = $"Unexpected error: {ex.Message}" });
             }
         }
+
+        [HttpGet("check-duplicate")]
+        public async Task<ActionResult> CheckDuplicate(
+            [FromQuery] string? email,
+            [FromQuery] string? phone,
+            [FromQuery] int? excludeUserId = null)
+        {
+            try
+            {
+                var emailExists = false;
+                var phoneExists = false;
+
+                var userLoginItems = this.userMasterModel;
+
+                if (!string.IsNullOrEmpty(email))
+                    emailExists = await userMasterModel.IsEmailOrPhoneExists(email, null, excludeUserId);
+
+                if (!string.IsNullOrEmpty(phone))
+                    phoneExists = await userMasterModel.IsEmailOrPhoneExists(null, phone, excludeUserId);
+
+                return Ok(new
+                {
+                    emailExists,
+                    phoneExists
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Unexpected error: {ex.Message}" });
+            }
+        }
     }
 }

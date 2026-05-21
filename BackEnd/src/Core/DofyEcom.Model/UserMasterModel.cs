@@ -691,6 +691,29 @@ namespace DofyEcom.Model
             }
         }
 
+        public async Task<bool> IsEmailOrPhoneExists(string? email, string? phone, int? excludeUserId = null)
+        {
+            var userLoginModel = new UserLoginModel(this.config, this.mapper, this.iPrincipal, this.context);
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                var existing = excludeUserId.HasValue
+                    ? userLoginModel.FindItem(x => x.Email == email && x.IsActive == true && x.UserId != excludeUserId.Value)
+                    : userLoginModel.FindItem(x => x.Email == email && x.IsActive == true);
+                if (existing != null) return true;
+            }
+
+            if (!string.IsNullOrEmpty(phone))
+            {
+                var existing = excludeUserId.HasValue
+                    ? userLoginModel.FindItem(x => x.Phone == phone && x.IsActive == true && x.UserId != excludeUserId.Value)
+                    : userLoginModel.FindItem(x => x.Phone == phone && x.IsActive == true);
+                if (existing != null) return true;
+            }
+
+            return false;
+        }
+
         private async Task<string> UploadPartnerImages(IFormFile image,int userId, string baseFolder)
         {
             try

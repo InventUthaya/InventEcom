@@ -35,6 +35,9 @@ const UserCreate = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [partnerErrors, setPartnerErrors] = useState<PartnerErrorType>({});
+  const [duplicateErrors, setDuplicateErrors] = useState<{ email?: string; phone?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
 
   const isEditMode = !!id;
 
@@ -345,6 +348,9 @@ const UserCreate = () => {
       ...prev,
       [section]: { ...prev[section], [field]: value },
     }));
+    // Clear field error on change
+    const key = `${section}.${field}`;
+    setFieldErrors((prev) => { const next = { ...prev }; delete next[key]; return next; });
   };
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: string, index = 0) => {
@@ -354,6 +360,9 @@ const UserCreate = () => {
       updatedAddresses[index] = { ...updatedAddresses[index], [field]: value };
       return { ...prev, UserAddresses: updatedAddresses };
     });
+    // Clear field error on change
+    const key = `Address[${index}].${field}`;
+    setFieldErrors((prev) => { const next = { ...prev }; delete next[key]; return next; });
   };
 
   const handleAddAddress = () => {
@@ -403,65 +412,65 @@ const UserCreate = () => {
     }));
   };
 
-const handlePartnerFileChange = (
-  e: React.ChangeEvent<HTMLInputElement>,
-  field: "ChequeLeaf" | "Signature"
-) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const handlePartnerFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "ChequeLeaf" | "Signature"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  // Always clear previous error for this field
-  setPartnerErrors((prev: any) => ({
-    ...prev,
-    [field]: "",
-  }));
+    // Always clear previous error for this field
+    setPartnerErrors((prev: any) => ({
+      ...prev,
+      [field]: "",
+    }));
 
-  if (field === "Signature") {
-    const img = new Image();
+    if (field === "Signature") {
+      const img = new Image();
 
-    img.onload = () => {
-      if (img.width !== 500 || img.height !== 500) {
-        // ❌ invalid image → show error ONLY
+      img.onload = () => {
+        if (img.width !== 500 || img.height !== 500) {
+          // ❌ invalid image → show error ONLY
+          setPartnerErrors((prev: any) => ({
+            ...prev,
+            Signature: "Signature must be exactly 500×500 pixels",
+          }));
+
+          // IMPORTANT: reset file input so retry doesn't re-mount form
+          e.target.value = "";
+          return;
+        }
+
+        // ✅ valid image
+        setPartnerData((prev: any) => ({
+          ...prev,
+          Documents: {
+            ...prev.Documents,
+            Signature: file,
+          },
+        }));
+      };
+
+      img.onerror = () => {
         setPartnerErrors((prev: any) => ({
           ...prev,
-          Signature: "Signature must be exactly 500×500 pixels",
+          Signature: "Invalid image file",
         }));
-
-        // IMPORTANT: reset file input so retry doesn't re-mount form
         e.target.value = "";
-        return;
-      }
+      };
 
-      // ✅ valid image
+      img.src = URL.createObjectURL(file);
+    } else {
+      // Cheque Leaf (no dimension validation)
       setPartnerData((prev: any) => ({
         ...prev,
         Documents: {
           ...prev.Documents,
-          Signature: file,
+          ChequeLeaf: file,
         },
       }));
-    };
-
-    img.onerror = () => {
-      setPartnerErrors((prev: any) => ({
-        ...prev,
-        Signature: "Invalid image file",
-      }));
-      e.target.value = "";
-    };
-
-    img.src = URL.createObjectURL(file);
-  } else {
-    // Cheque Leaf (no dimension validation)
-    setPartnerData((prev: any) => ({
-      ...prev,
-      Documents: {
-        ...prev.Documents,
-        ChequeLeaf: file,
-      },
-    }));
-  }
-};
+    }
+  };
 
 
   const validatePartnerData = (): boolean => {
@@ -501,23 +510,61 @@ const handlePartnerFileChange = (
 
     try {
       const { User, UserLogin, UserRole, UserAddresses } = formData;
+      const errors: Record<string, string> = {};
 
       // Basic validations
-      if (!User.FullName?.trim()) throw new Error('Full name is required');
+      if (!User.FullName?.trim()) errors['User.FullName'] = 'Full name is required';
       if (!UserLogin.Email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(UserLogin.Email))
-        throw new Error('Valid email is required');
+        errors['UserLogin.Email'] = 'Valid email is required';
       if (!UserLogin.Phone?.trim() || !/^\+?[1-9]\d{1,14}$/.test(UserLogin.Phone))
-        throw new Error('Valid phone number is required');
+        errors['UserLogin.Phone'] = 'Valid phone number is required';
       if (!isEditMode && !UserLogin.PasswordHash?.trim())
-        throw new Error('Password is required for new users');
+        errors['UserLogin.PasswordHash'] = 'Password is required for new users';
       if (!UserRole.RoleId || !roles.some((r) => r.id === UserRole.RoleId))
-        throw new Error('Valid role is required');
+        errors['UserRole.RoleId'] = 'Valid role is required';
 
-      for (const addr of UserAddresses) {
-        if (!addr.AddressLine1?.trim() || !addr.City?.trim() || !addr.State?.trim() || !addr.Country?.trim() || !addr.Pincode?.trim()) {
-          throw new Error('All address fields (except Address Line 2) are required');
-        }
+      UserAddresses.forEach((addr, index) => {
+        if (!addr.Name?.trim()) errors[`Address[${index}].Name`] = 'Name is required';
+        if (!addr.PhoneNumber?.trim() || !/^\+?[1-9]\d{1,14}$/.test(addr.PhoneNumber)) 
+          errors[`Address[${index}].PhoneNumber`] = 'Valid phone number is required';
+        if (!addr.AddressType?.trim()) errors[`Address[${index}].AddressType`] = 'Address type is required';
+        if (!addr.AddressLine1?.trim()) errors[`Address[${index}].AddressLine1`] = 'Address line 1 is required';
+        if (!addr.City?.trim()) errors[`Address[${index}].City`] = 'City is required';
+        if (!addr.State?.trim()) errors[`Address[${index}].State`] = 'State is required';
+        if (!addr.Country?.trim()) errors[`Address[${index}].Country`] = 'Country is required';
+        if (!addr.Pincode?.trim()) errors[`Address[${index}].Pincode`] = 'Pincode is required';
+      });
+
+      setFieldErrors(errors);
+
+      if (Object.keys(errors).length > 0) {
+        setLoading(false);
+        return; // Stay on form and show fieldErrors
       }
+
+      // Fresh duplicate check on submit (handles case where user didn't blur the fields)
+      const excludeId = isEditMode ? parseInt(id!) : undefined;
+      const newDuplicates: { email?: string; phone?: string } = {};
+
+      try {
+        const emailParams = `email=${encodeURIComponent(UserLogin.Email)}${excludeId ? `&excludeUserId=${excludeId}` : ''}`;
+        const emailRes = await CommonService.get('User', `check-duplicate?${emailParams}`, 'noParam');
+        if (emailRes.data?.emailExists) newDuplicates.email = 'This email is already registered';
+      } catch { /* silent */ }
+
+      try {
+        const phoneParams = `phone=${encodeURIComponent(UserLogin.Phone)}${excludeId ? `&excludeUserId=${excludeId}` : ''}`;
+        const phoneRes = await CommonService.get('User', `check-duplicate?${phoneParams}`, 'noParam');
+        if (phoneRes.data?.phoneExists) newDuplicates.phone = 'This phone number is already registered';
+      } catch { /* silent */ }
+
+      if (newDuplicates.email || newDuplicates.phone) {
+        setDuplicateErrors(newDuplicates);
+        setLoading(false);
+        return; // Stay on form — inline errors are now visible under the fields
+      }
+
+      setDuplicateErrors({});
 
       // Partner validation
       if (isPartner) {
@@ -700,10 +747,10 @@ const handlePartnerFileChange = (
                       type="text"
                       value={formData.User.FullName}
                       onChange={(e) => handleInputChange(e, 'User', 'FullName')}
-                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors['User.FullName'] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                       placeholder="Enter full name"
-                      required
                     />
+                    {fieldErrors['User.FullName'] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors['User.FullName']}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -711,9 +758,8 @@ const handlePartnerFileChange = (
                     </label>
                     <select
                       value={formData.UserRole.RoleId}
-                      onChange={handleRoleChange}
-                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
+                      onChange={(e) => { handleRoleChange(e); setFieldErrors((prev) => { const next = { ...prev }; delete next['UserRole.RoleId']; return next; }); }}
+                      className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors['UserRole.RoleId'] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                     >
                       <option value="0" disabled>Select role</option>
                       {roles.map((role) => (
@@ -722,6 +768,7 @@ const handlePartnerFileChange = (
                         </option>
                       ))}
                     </select>
+                    {fieldErrors['UserRole.RoleId'] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors['UserRole.RoleId']}</p>}
                   </div>
                 </div>
               </div>
@@ -737,11 +784,13 @@ const handlePartnerFileChange = (
                     <input
                       type="email"
                       value={formData.UserLogin.Email}
-                      onChange={(e) => handleInputChange(e, 'UserLogin', 'Email')}
-                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) => { handleInputChange(e, 'UserLogin', 'Email'); setDuplicateErrors((prev) => { const n = { ...prev }; delete n.email; return n; }); }}
+                      className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors['UserLogin.Email'] || duplicateErrors.email ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                       placeholder="Enter email"
-                      required
                     />
+                    {(fieldErrors['UserLogin.Email'] || duplicateErrors.email) && (
+                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors['UserLogin.Email'] || duplicateErrors.email}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -750,11 +799,13 @@ const handlePartnerFileChange = (
                     <input
                       type="text"
                       value={formData.UserLogin.Phone}
-                      onChange={(e) => handleInputChange(e, 'UserLogin', 'Phone')}
-                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) => { handleInputChange(e, 'UserLogin', 'Phone'); setDuplicateErrors((prev) => { const n = { ...prev }; delete n.phone; return n; }); }}
+                      className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors['UserLogin.Phone'] || duplicateErrors.phone ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                       placeholder="Enter phone number (e.g., +1234567890)"
-                      required
                     />
+                    {(fieldErrors['UserLogin.Phone'] || duplicateErrors.phone) && (
+                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors['UserLogin.Phone'] || duplicateErrors.phone}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -764,10 +815,10 @@ const handlePartnerFileChange = (
                       type="password"
                       value={formData.UserLogin.PasswordHash}
                       onChange={(e) => handleInputChange(e, 'UserLogin', 'PasswordHash')}
-                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors['UserLogin.PasswordHash'] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                       placeholder={isEditMode ? 'Leave blank to keep existing password' : 'Enter password'}
-                      required={!isEditMode}
                     />
+                    {fieldErrors['UserLogin.PasswordHash'] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors['UserLogin.PasswordHash']}</p>}
                   </div>
                 </div>
               </div>
@@ -796,11 +847,12 @@ const handlePartnerFileChange = (
                         </label>
                         <input
                           type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500"
+                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].Name`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           placeholder="Enter Name"
                           value={address.Name}
                           onChange={(e) => handleAddressChange(e, 'Name', index)}
                         />
+                        {fieldErrors[`Address[${index}].Name`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].Name`]}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -808,27 +860,28 @@ const handlePartnerFileChange = (
                         </label>
                         <input
                           type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500"
+                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].PhoneNumber`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           placeholder="Enter phone number"
                           value={address.PhoneNumber}
                           onChange={(e) => handleAddressChange(e, 'PhoneNumber', index)}
                         />
+                        {fieldErrors[`Address[${index}].PhoneNumber`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].PhoneNumber`]}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Address Type <span className="text-red-600">*</span>
                         </label>
                         <select
-                          className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].AddressType`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           value={address.AddressType}
                           onChange={(e) => handleAddressChange(e, 'AddressType', index)}
-                          required
                         >
                           <option value="">Select address type</option>
                           <option value="Home">Home</option>
                           <option value="Work">Work</option>
                           <option value="Other">Other</option>
                         </select>
+                        {fieldErrors[`Address[${index}].AddressType`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].AddressType`]}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1 <span className="text-red-600">*</span></label>
@@ -836,10 +889,10 @@ const handlePartnerFileChange = (
                           type="text"
                           value={address.AddressLine1}
                           onChange={(e) => handleAddressChange(e, 'AddressLine1', index)}
-                          className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].AddressLine1`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           placeholder="Enter address line 1"
-                          required
                         />
+                        {fieldErrors[`Address[${index}].AddressLine1`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].AddressLine1`]}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
@@ -857,10 +910,10 @@ const handlePartnerFileChange = (
                           type="text"
                           value={address.City}
                           onChange={(e) => handleAddressChange(e, 'City', index)}
-                          className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].City`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           placeholder="Enter city"
-                          required
                         />
+                        {fieldErrors[`Address[${index}].City`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].City`]}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">State <span className="text-red-600">*</span></label>
@@ -868,10 +921,10 @@ const handlePartnerFileChange = (
                           type="text"
                           value={address.State}
                           onChange={(e) => handleAddressChange(e, 'State', index)}
-                          className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].State`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           placeholder="Enter state"
-                          required
                         />
+                        {fieldErrors[`Address[${index}].State`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].State`]}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Country <span className="text-red-600">*</span></label>
@@ -879,10 +932,10 @@ const handlePartnerFileChange = (
                           type="text"
                           value={address.Country}
                           onChange={(e) => handleAddressChange(e, 'Country', index)}
-                          className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].Country`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           placeholder="Enter country"
-                          required
                         />
+                        {fieldErrors[`Address[${index}].Country`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].Country`]}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Pincode <span className="text-red-600">*</span></label>
@@ -890,10 +943,10 @@ const handlePartnerFileChange = (
                           type="number"
                           value={address.Pincode}
                           onChange={(e) => handleAddressChange(e, 'Pincode', index)}
-                          className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors[`Address[${index}].Pincode`] ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                           placeholder="Enter pincode"
-                          required
                         />
+                        {fieldErrors[`Address[${index}].Pincode`] && <p className="mt-1 text-xs text-red-600 flex items-center gap-1">⚠ {fieldErrors[`Address[${index}].Pincode`]}</p>}
                       </div>
                     </div>
                   </div>
