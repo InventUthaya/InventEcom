@@ -197,7 +197,7 @@ function Otp({ setIsOTP, isSell }: { setIsOTP: any; isSell: any }) {
           </div>
           <div className="lg:w-[100%] flex flex-col px-4 lg:px-8 py-5">
             <h2 className="lg:text-2xl font-semibold">Enter OTP</h2>
-            <h3>Check for Otp in {maskedPhoneNumber} </h3>
+            <h3>Check for Otp in Registered Email </h3>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="flex flex-row lg:gap-4 gap-3 mt-4">
                 <OtpInput
