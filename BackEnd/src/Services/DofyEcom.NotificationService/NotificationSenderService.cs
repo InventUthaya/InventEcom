@@ -57,9 +57,12 @@ namespace DOFY.NotificationService
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            this.pendingEmailCheckTimer.Stop();
-            this.pendingEmailCheckTimer.Dispose();
-            this.pendingEmailCheckTimer = null;
+            if (this.pendingEmailCheckTimer != null)
+            {
+                this.pendingEmailCheckTimer.Stop();
+                this.pendingEmailCheckTimer.Dispose();
+                this.pendingEmailCheckTimer = null;
+            }
 
             await base.StopAsync(cancellationToken);
         }
