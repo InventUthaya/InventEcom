@@ -26,24 +26,8 @@ export default function Breadcrumbs({ category, subcategory }: BreadcrumbsProps)
     return null;
   }
 
- const formatTitle = (segment: string): string => {
-  if (!segment) return '';
-
-  return segment
-    .trim()
-    .replace(/[^\w&]/g, '')
-    .replace(/\s+/g, '')
-    .split(' ')
-    .filter(Boolean)
-    .join('')
-    .split('&')
-    .map(part => 
-      part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : ''
-    )
-    .join('&');
-};
-  const formattedCategory = formatTitle(category);
-  const formattedSubcategory = subcategory ? formatTitle(subcategory) : '';
+  const formattedCategory = category;
+  const formattedSubcategory = subcategory;
 
   return (
     <nav className="flex items-center text-sm lg:text-base  relative z-50">

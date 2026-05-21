@@ -30,8 +30,8 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const profileFullName = person
-    ? `${person.firstName || ""} ${person.lastName || ""}`.trim() || "Home"
-    : "Home";
+    ? `${person.firstName || ""} ${person.lastName || ""}`.trim() || ""
+    : "";
   const profilePhone = person?.PhoneNumber || person?.mobileNumber || "";
 
   const [formData, setFormData] = useState({
@@ -77,7 +77,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
     setFormData({
       Name: profileFullName,
       PhoneNumber: profilePhone,
-      AddressType: "Home",
+      AddressType: "",
       AddressLine1: "",
       AddressLine2: "",
       City: "",

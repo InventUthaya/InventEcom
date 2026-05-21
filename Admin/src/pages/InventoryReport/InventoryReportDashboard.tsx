@@ -68,19 +68,19 @@ const InventoryReport = () => {
 
             // Cache the data for export and count
             setAllProductsCache(rawData);
-            
+
             // Set the actual total count
             setTotalRecords(rawData.length);
-            
+
             // Calculate hasMore based on total count and current page
             const totalPages = Math.ceil(rawData.length / productsPerPage);
             setHasMore(currentPage < totalPages);
-            
+
         } catch (e: any) {
             console.error("Error fetching total count:", e);
             // Fallback to estimation
-            setTotalRecords(products.length === productsPerPage ? 
-                (currentPage * productsPerPage) + 1 : 
+            setTotalRecords(products.length === productsPerPage ?
+                (currentPage * productsPerPage) + 1 :
                 (currentPage - 1) * productsPerPage + products.length);
         }
     };
@@ -94,7 +94,7 @@ const InventoryReport = () => {
 
         try {
             const pageIndex = currentPage - 1;
-            
+
             const params = {
                 pageIndex: pageIndex,
                 pageSize: productsPerPage,
@@ -127,10 +127,10 @@ const InventoryReport = () => {
             }));
 
             setProducts(transformedProducts);
-            
+
             // Update hasMore based on whether we got a full page
             setHasMore(transformedProducts.length === productsPerPage);
-            
+
         } catch (e: any) {
             console.error("Error fetching inventory report:", e?.response ? e.response.data : e);
             setError(e?.response?.data?.message || "Failed to fetch inventory report");
@@ -196,7 +196,7 @@ const InventoryReport = () => {
         try {
             // Use cached data or fetch fresh if cache is empty
             let dataToExport = allProductsCache;
-            
+
             if (dataToExport.length === 0) {
                 await fetchTotalCount(); // This will populate the cache
                 dataToExport = allProductsCache;
@@ -239,7 +239,7 @@ const InventoryReport = () => {
 
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
             const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            saveAs(data, `Inventory_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+            saveAs(data, `Inventory_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
         } catch (e) {
             console.error("Error exporting to Excel:", e);
             alert("Failed to export. Please try again.");
@@ -253,14 +253,14 @@ const InventoryReport = () => {
         try {
             // Use cached data
             let dataToExport = allProductsCache;
-            
+
             if (dataToExport.length === 0) {
                 await fetchTotalCount();
                 dataToExport = allProductsCache;
             }
 
             const outOfStockProducts = dataToExport.filter((product: any) => product.TotalStock === 0);
-            
+
             if (outOfStockProducts.length === 0) {
                 alert("No out of stock products found.");
                 return;
@@ -299,7 +299,7 @@ const InventoryReport = () => {
 
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
             const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            saveAs(data, `Out_of_Stock_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+            saveAs(data, `Out_of_Stock_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
         } catch (e) {
             console.error("Error exporting out of stock:", e);
             alert("Failed to export. Please try again.");
@@ -356,7 +356,7 @@ const InventoryReport = () => {
                                         className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center space-x-2 w-full sm:w-auto justify-center mb-2 sm:mb-0"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 384 512" fill="currentColor">
-                                            <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7 0-32-14.3-32-32L192 0 64 0zM256 0l0 128 128 0L256 0zM155.7 250.2L120 345.4l36.2 95.2c3.3 8.6 14 12.4 22.6 8.3l21.6-10.8c8.6-4.3 12.4-15 8.3-23.6l-27.4-72.2 27.4-72.2c4.1-8.6 .3-19.3-8.3-23.6l-21.6-10.8c-8.6-4.3-19.3-.5-22.6 8.3zm91.4 8.3c-4.1-8.6-14.8-12.4-23.4-8.3l-21.6 10.8c-8.6 4.3-12.4 15-8.3 23.6l18.2 47.8-18.2 47.8c-4.1 8.6-.3 19.3 8.3 23.6l21.6 10.8c8.6 4.3 19.3 .5 23.4-8.3L264 345.4l18.2-47.8-18.2-47.8c-4.1-8.6-.3-19.3 8.3-23.6l21.6-10.8c8.6-4.3 19.3-.5 23.4 8.3l-18.2 47.8 18.2 47.8c4.1 8.6 .3 19.3-8.3 23.6l-21.6 10.8c-8.6 4.3-19.3 .5-23.4-8.3L264 345.4l-16.9-95.2z"/>
+                                            <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7 0-32-14.3-32-32L192 0 64 0zM256 0l0 128 128 0L256 0zM155.7 250.2L120 345.4l36.2 95.2c3.3 8.6 14 12.4 22.6 8.3l21.6-10.8c8.6-4.3 12.4-15 8.3-23.6l-27.4-72.2 27.4-72.2c4.1-8.6 .3-19.3-8.3-23.6l-21.6-10.8c-8.6-4.3-19.3-.5-22.6 8.3zm91.4 8.3c-4.1-8.6-14.8-12.4-23.4-8.3l-21.6 10.8c-8.6 4.3-12.4 15-8.3 23.6l18.2 47.8-18.2 47.8c-4.1 8.6-.3 19.3 8.3 23.6l21.6 10.8c8.6 4.3 19.3 .5 23.4-8.3L264 345.4l18.2-47.8-18.2-47.8c-4.1-8.6-.3-19.3 8.3-23.6l21.6-10.8c8.6-4.3 19.3-.5 23.4 8.3l-18.2 47.8 18.2 47.8c4.1 8.6 .3 19.3-8.3 23.6l-21.6 10.8c-8.6 4.3-19.3 .5-23.4-8.3L264 345.4l-16.9-95.2z" />
                                         </svg>
                                         <span>Export All</span>
                                     </button>
@@ -367,18 +367,18 @@ const InventoryReport = () => {
                                         className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed px-4 py-2 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center space-x-2 w-full sm:w-auto justify-center"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 384 512" fill="currentColor">
-                                            <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7 0-32-14.3-32-32L192 0 64 0zM256 0l0 128 128 0L256 0zM155.7 250.2L120 345.4l36.2 95.2c3.3 8.6 14 12.4 22.6 8.3l21.6-10.8c8.6-4.3 12.4-15 8.3-23.6l-27.4-72.2 27.4-72.2c4.1-8.6 .3-19.3-8.3-23.6l-21.6-10.8c-8.6-4.3-19.3-.5-22.6 8.3zm91.4 8.3c-4.1-8.6-14.8-12.4-23.4-8.3l-21.6 10.8c-8.6 4.3-12.4 15-8.3 23.6l18.2 47.8-18.2 47.8c-4.1 8.6-.3 19.3 8.3 23.6l21.6 10.8c8.6 4.3 19.3 .5 23.4-8.3L264 345.4l18.2-47.8-18.2-47.8c-4.1-8.6-.3-19.3 8.3-23.6l21.6-10.8c8.6-4.3 19.3-.5 23.4 8.3l-18.2 47.8 18.2 47.8c4.1 8.6 .3 19.3-8.3 23.6l-21.6 10.8c-8.6 4.3-19.3 .5-23.4-8.3L264 345.4l-16.9-95.2z"/>
+                                            <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7 0-32-14.3-32-32L192 0 64 0zM256 0l0 128 128 0L256 0zM155.7 250.2L120 345.4l36.2 95.2c3.3 8.6 14 12.4 22.6 8.3l21.6-10.8c8.6-4.3 12.4-15 8.3-23.6l-27.4-72.2 27.4-72.2c4.1-8.6 .3-19.3-8.3-23.6l-21.6-10.8c-8.6-4.3-19.3-.5-22.6 8.3zm91.4 8.3c-4.1-8.6-14.8-12.4-23.4-8.3l-21.6 10.8c-8.6 4.3-12.4 15-8.3 23.6l18.2 47.8-18.2 47.8c-4.1 8.6-.3 19.3 8.3 23.6l21.6 10.8c8.6 4.3 19.3 .5 23.4-8.3L264 345.4l18.2-47.8-18.2-47.8c-4.1-8.6-.3-19.3 8.3-23.6l21.6-10.8c8.6-4.3 19.3-.5 23.4 8.3l-18.2 47.8 18.2 47.8c4.1 8.6 .3 19.3-8.3 23.6l-21.6 10.8c-8.6 4.3-19.3 .5-23.4-8.3L264 345.4l-16.9-95.2z" />
                                         </svg>
                                         <span>Export Out of Stock</span>
                                     </button>
                                 </>
                             )}
-                            <button
+                            {/* <button
                                 onClick={() => navigate('/product-dashboard')}
                                 className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
                             >
                                 Create Product
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 </div>

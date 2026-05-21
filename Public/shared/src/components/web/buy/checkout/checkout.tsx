@@ -814,14 +814,7 @@ export default function SimpleCheckoutPage() {
               </div>
 
               <div className="space-y-8">
-                {paymentMethod !== "cod" && (
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Card Details</h2>
-                    <div className="p-4 border border-gray-300 rounded-md bg-gray-50">
-                      <p className="text-sm text-gray-600 mb-2">Test Card: 4242 4242 4242 4242</p>
-                    </div>
-                  </div>
-                )}
+
 
                 <div className="bg-white rounded-lg shadow p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Price Details</h2>

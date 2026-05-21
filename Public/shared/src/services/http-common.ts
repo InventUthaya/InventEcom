@@ -13,18 +13,40 @@ const CreateHttpInstance = () => {
     },
   });
 
+  let activeRequests = 0;
+
   api.interceptors.request.use(
     (config) => {
+      activeRequests++;
+      if (activeRequests === 1 && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('api_load_start'));
+      }
       const  token  = getAuthToken();
       config.headers["Authorization"] = token ? `Bearer ${token}` : (process.env.NEXT_PUBLIC_PUBLIC_API_KEY ?? '');
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+      activeRequests--;
+      if (activeRequests === 0 && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('api_load_end'));
+      }
+      return Promise.reject(error);
+    }
   );
 
   api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      activeRequests--;
+      if (activeRequests === 0 && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('api_load_end'));
+      }
+      return response;
+    },
     (error) => {
+      activeRequests--;
+      if (activeRequests === 0 && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('api_load_end'));
+      }
       if (error.response?.status === 401) {
         localStorage.removeItem("token");
         window.location.href = "/";

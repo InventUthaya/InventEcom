@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DofyEcom.Contracts;
 using DofyEcom.Contracts.Requests;
 using DofyEcom.Contracts.Responses;
@@ -105,7 +105,7 @@ namespace DofyEcom.Public.API.Controllers
 
         [HttpPost]
         [Route("GetOrderByCustomerId")]
-        public async Task<IActionResult> GetOrderByCustomerId([FromQuery] string customerId, string? filterType)
+        public async Task<IActionResult> GetOrderByCustomerId([FromQuery] string customerId, [FromQuery] string? filterType)
         {
             int id = (int)Convert.ToInt64(customerId);
 

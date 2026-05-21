@@ -4,7 +4,8 @@ class TrackOderServices {
     private serviceName = '/order';
 
     GetOrderByCustomerId(customerId: any, filterType?: any) {
-        return http.post(`${this.serviceName}/GetOrderByCustomerId/?customerId=${customerId}&filterType=${filterType}`, {
+        const encodedFilter = filterType ? encodeURIComponent(filterType) : '';
+        return http.post(`${this.serviceName}/GetOrderByCustomerId?customerId=${encodeURIComponent(customerId)}&filterType=${encodedFilter}`, {
         }).catch((err: Error) => {
             throw err?.message;
         })

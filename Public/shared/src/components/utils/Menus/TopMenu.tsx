@@ -149,7 +149,7 @@ export default function Menu({
               {pickupEnable && <RequestDelivery />}
               {personId && (
                 <Link href="/myorder" className={`${isActive === "/myorder" ? "text-[#EA002A]" : "text-[#050505]"} cursor-pointer text-base hidden lg:block`}>
-                  Order
+                  My Order
                 </Link>
               )}
               <div className="relative">
