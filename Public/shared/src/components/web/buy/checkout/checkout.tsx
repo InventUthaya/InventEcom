@@ -287,7 +287,7 @@ export default function SimpleCheckoutPage() {
     const finalAmount = roundedProductTotal + roundedTaxTotal;
 
     return {
-      productTotal: Math.round(originalProductTotal),
+      productTotal: hasExclusiveTax ? Math.round(originalProductTotal) : Math.round(originalProductTotal) + roundedTaxTotal,
       taxTotal: roundedTaxTotal,
       hasExclusiveTax,
       discountTotal: Math.round(backendDiscount),
@@ -641,7 +641,7 @@ export default function SimpleCheckoutPage() {
                                 {item.BrandName && <p className="text-sm text-gray-600">Brand: {item.BrandName}</p>}
                               </div>
                               <div className="text-right">
-                                <p className="text-lg font-semibold text-gray-900">{currencyByCountry(formatPrice(item.TotalPrice))}</p>
+                                <p className="text-lg font-semibold text-gray-900">{currencyByCountry(formatPrice(item.IsInclusive ? item.TotalPrice + item.TaxAmount : item.TotalPrice))}</p>
                               </div>
                             </div>
                             {item.Quantity > item.StockQty && (
@@ -830,10 +830,10 @@ export default function SimpleCheckoutPage() {
                       <span className="text-gray-600">Product Total</span>
                       <span className="font-medium">{currencyByCountry(formatPrice(totals.productTotal))}</span>
                     </div>
-                    {totals.taxTotal > 0 && (
+                    {totals.taxTotal > 0 && totals.hasExclusiveTax && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">{totals.hasExclusiveTax ? "Tax" : "Tax (Incl.)"}</span>
-                        <span className="font-medium">{totals.hasExclusiveTax ? "+" : ""}{currencyByCountry(formatPrice(totals.taxTotal))}</span>
+                        <span className="text-gray-600">Tax</span>
+                        <span className="font-medium">+{currencyByCountry(formatPrice(totals.taxTotal))}</span>
                       </div>
                     )}
                     {totals.discountTotal > 0 && (

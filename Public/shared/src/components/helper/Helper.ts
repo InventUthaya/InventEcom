@@ -571,10 +571,8 @@ export const formatPrice = (price: number | string | undefined): string => {
         return price.toString();
     }
 
-    const formattedPrice = numericPrice
-        .toFixed(2)
-        .replace(/\.00$/, "")
-        .replace(/(\.\d)0$/, "$1");
+    const roundedPrice = Math.round(numericPrice);
+    const formattedPrice = roundedPrice.toString();
 
     const withCommas = formattedPrice.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 

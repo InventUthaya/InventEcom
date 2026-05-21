@@ -14,4 +14,6 @@ export interface IDealsProductModel {
     FormattedMediaFileName:any,
     DiscountPricePercentage:string;
     DealName:string;
+    TaxRate?: number;
+    IsInclusive?: boolean;
 }

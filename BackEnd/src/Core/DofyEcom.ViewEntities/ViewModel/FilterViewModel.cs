@@ -1,4 +1,4 @@
-﻿
+
 namespace DofyEcom.ViewEntities
 {
     public class FilterViewModel
@@ -23,5 +23,9 @@ namespace DofyEcom.ViewEntities
         public string? ImagePath { get; set; }
 
         public string? PartnerCompanyName { get; set; }
+
+        public decimal? TaxRate { get; set; }
+        
+        public bool? IsInclusive { get; set; }
     }
 }

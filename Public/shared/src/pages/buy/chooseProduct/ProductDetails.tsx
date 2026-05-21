@@ -211,6 +211,8 @@ const ProductList = (props: any) => {
                   FullDescription={a.FullDescription}
                   DealName={""}
                   PartnerCompanyName={a.PartnerCompanyName}
+                  taxRate={a.TaxRate}
+                  isInclusive={a.IsInclusive}
                 />
               </Link>
             );

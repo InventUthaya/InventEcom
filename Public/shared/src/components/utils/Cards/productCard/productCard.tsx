@@ -21,6 +21,8 @@ type ProductCardType = {
   EncryptedProductId: string;
   ImageBase64?: string;
   PartnerCompanyName?: string;
+  taxRate?: number;
+  isInclusive?: boolean;
 };
 
 export const ProductCard = (props: ProductCardType) => {
@@ -41,8 +43,15 @@ export const ProductCard = (props: ProductCardType) => {
   const imageSrc = getImageSrc() || firstImageUrl;
 
   // Price logic
-  const mainPrice = props.OrginalPrice ?? props.price;
-  const strikethroughPrice = props.OrginalPrice ? props.price : null;
+  let mainPrice = props.OrginalPrice ?? props.price;
+  let strikethroughPrice = props.OrginalPrice ? props.price : null;
+
+  if (props.taxRate && props.isInclusive) {
+    mainPrice = mainPrice + (mainPrice * props.taxRate / 100);
+    if (strikethroughPrice) {
+      strikethroughPrice = strikethroughPrice + (strikethroughPrice * props.taxRate / 100);
+    }
+  }
 
   // Discount calculation based on discount amount (OldPrice - NewPrice)
   const hasDiscountAmount = props.OrginalPrice && props.price > 0 && props.price < props.OrginalPrice;

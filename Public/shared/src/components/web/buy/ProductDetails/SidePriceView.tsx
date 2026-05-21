@@ -425,11 +425,11 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
             <div className="self-start text-xs font-extrabold tracking-wider text-red-500">PRICE</div>
             <div className="m-2 flex gap-4 items-center">
               <span className="font-bold text-3xl">
-                {currencyByCountry(formatPrice(selectedVariant.SellingPrice))}
+                {currencyByCountry(formatPrice(selectedVariant.SellingPrice + (selectedVariant.SellingPrice * (productData.TaxRate || 0) / 100)))}
               </span>
               {selectedVariant.MRP > selectedVariant.SellingPrice && (
                 <span className="text-gray-400 relative px-1 italic text-lg line-through decoration-red-600 decoration-2">
-                  {currencyByCountry(formatPrice(selectedVariant.MRP))}
+                  {currencyByCountry(formatPrice(selectedVariant.MRP + (selectedVariant.MRP * (productData.TaxRate || 0) / 100)))}
                 </span>
               )}
             </div>
@@ -965,11 +965,11 @@ export const MobileCartView: React.FC<DesktopCartViewProps> = ({
             <div className="self-start text-xs font-extrabold tracking-wider text-red-500">PRICE</div>
             <div className="m-2 flex gap-4 items-center">
               <span className="font-bold text-2xl">
-                {currencyByCountry(formatPrice(selectedVariant.SellingPrice))}
+                {currencyByCountry(formatPrice(selectedVariant.SellingPrice + (selectedVariant.SellingPrice * (productData.TaxRate || 0) / 100)))}
               </span>
               {selectedVariant.MRP > selectedVariant.SellingPrice && (
                 <span className="text-gray-400 relative px-1 italic text-base line-through decoration-red-600 decoration-2">
-                  {currencyByCountry(formatPrice(selectedVariant.MRP))}
+                  {currencyByCountry(formatPrice(selectedVariant.MRP + (selectedVariant.MRP * (productData.TaxRate || 0) / 100)))}
                 </span>
               )}
             </div>
