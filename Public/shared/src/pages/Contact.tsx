@@ -162,7 +162,7 @@ function Contact({ address, direction, language, isSSR, contactUsConfig, metaTag
       id: 1,
       image: whatsapp,
       title: dataLocalization.Reach_us_on_WhatsApp,
-      contact: contactdata.contactUsConfig?.WhatsAppPhone,
+      contact: "044 4310 2586",
     },
     {
       id: 2,
@@ -173,14 +173,14 @@ function Contact({ address, direction, language, isSSR, contactUsConfig, metaTag
     {
       id: 3,
       image: call,
-      title: dataLocalization.For_buy_related_queries,
-      contact: contactdata.contactUsConfig?.BuyPhone,
+      title: dataLocalization.For_warranty_order_related_queries || "For order-related queries",
+      contact: "044 4310 2586",
     },
     {
       id: 4,
       image: call,
-      title: dataLocalization.For_warranty_order_related_queries,
-      contact: contactdata.contactUsConfig?.OrderPhone,
+      title: dataLocalization.For_business_queries || "For business-related queries",
+      contact: "044 4310 2586",
     },
   ];
 
@@ -188,21 +188,15 @@ function Contact({ address, direction, language, isSSR, contactUsConfig, metaTag
     {
       id: 1,
       image: mess,
-      title: dataLocalization.For_buy_related_queries,
-      contact: contactdata.contactUsConfig?.BuyEmail,
+      title: dataLocalization.For_warranty_order_related_queries || "For order-related queries",
+      contact: "info@inventsoftlabs.com",
     },
     {
       id: 2,
       image: mess,
-      title: dataLocalization.For_warranty_order_related_queries,
-      contact: contactdata.contactUsConfig?.OrderEmail,
+      title: dataLocalization.For_business_queries || "For business-related queries",
+      contact: "info@inventsoftlabs.com",
     },
-    // {
-    //   id: 3,
-    //   image: mess,
-    //   title: dataLocalization.For_business_queries,
-    //   contact: contactdata.contactUsConfig?.BusinessEmail,
-    // },
   ];
 
 
@@ -268,10 +262,11 @@ function Contact({ address, direction, language, isSSR, contactUsConfig, metaTag
                     alt=""
                     className="w-5 lg:w-4 2xl:w-7 object-contain"
                   />
-                  <p className="lg:w-[80%]">
-                    {contactdata.contactUsConfig?.Name} ,<span></span>
-                    {contactdata.contactUsConfig?.Address}
-                  </p>
+                  <div className="lg:w-[80%] flex flex-col gap-2">
+                    <p>
+                      4/2, 2nd Floor, Balaji Avenue 2nd Street, Thirumalai Pillai Road, T Nagar, Balaji Ave 2nd St, Darmapuram, T. Nagar, Chennai, Tamil Nadu 600017
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="lg:w-[30%] w-full flex flex-col justify-center items-center p-8">
