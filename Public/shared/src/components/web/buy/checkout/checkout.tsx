@@ -162,6 +162,7 @@ export default function SimpleCheckoutPage() {
             BrandName: item.BrandName,
             selected: true,
             PartnerCompanyName: item.PartnerCompanyName,
+            StockQty: item.StockQty || 0,
           };
         });
         setOrderDetails(details);
@@ -242,6 +243,7 @@ export default function SimpleCheckoutPage() {
   }, [showSuccessPopup]);
 
   const selectedItems = orderDetails.filter(item => item.selected);
+  const isStockExceeded = selectedItems.some(item => item.Quantity > item.StockQty);
 
   const calculateTotals = () => {
     const selected = orderDetails.filter(i => i.selected);
@@ -642,6 +644,14 @@ export default function SimpleCheckoutPage() {
                                 <p className="text-lg font-semibold text-gray-900">{currencyByCountry(formatPrice(item.TotalPrice))}</p>
                               </div>
                             </div>
+                            {item.Quantity > item.StockQty && (
+                              <div className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2 flex items-center space-x-2 animate-fade-in">
+                                <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span className="font-semibold text-xs">Stock Not Available! Only {item.StockQty} available.</span>
+                              </div>
+                            )}
                             <div className="pt-2 mt-auto flex items-center gap-2 border-t border-[#EFEFEF]">
                               <Store size={14} className="text-gray-500" />
                               <span className="text-xs text-gray-600 truncate">{item.PartnerCompanyName}</span>
@@ -854,14 +864,19 @@ export default function SimpleCheckoutPage() {
                     </div>
                   </div>
 
-                  <button onClick={handleUpdateOrder} disabled={!selectedAddressId || updatingOrder || selectedItems.length === 0} className={`w-full mt-6 py-3 px-4 rounded-md font-medium transition-all ${!selectedAddressId || updatingOrder || selectedItems.length === 0 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white hover:bg-red-700"}`}>
-                    {updatingOrder ? (
-                      <div className="flex items-center justify-center">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        Placing Order...
-                      </div>
-                    ) : "Finish"}
-                  </button>
+                  {(() => {
+                    const isFinishDisabled = !selectedAddressId || updatingOrder || selectedItems.length === 0 || isStockExceeded;
+                    return (
+                      <button onClick={handleUpdateOrder} disabled={isFinishDisabled} className={`w-full mt-6 py-3 px-4 rounded-md font-medium transition-all ${isFinishDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white hover:bg-red-700"}`}>
+                        {updatingOrder ? (
+                          <div className="flex items-center justify-center">
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            Placing Order...
+                          </div>
+                        ) : "Finish"}
+                      </button>
+                    );
+                  })()}
 
                   <p className="text-sm text-gray-500 mt-4 text-center">By placing this order, you agree to our Terms of Service</p>
                 </div>
