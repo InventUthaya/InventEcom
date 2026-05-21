@@ -47,6 +47,12 @@ export default function SimpleCheckoutPage() {
   const [state, setState] = useState<Array<any>>([]);
   const [city, setCity] = useState<Array<any>>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const handleInputChange = (field: string, value: string) => {
+    setNewAddress((prev) => ({ ...prev, [field]: value }));
+    if (formErrors[field]) {
+      setFormErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successfulOrders, setSuccessfulOrders] = useState<string[]>([]);
   const [isPromoCodeValid, setIsPromoCodeValid] = useState(false);
@@ -692,52 +698,52 @@ export default function SimpleCheckoutPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
-                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.Name} onChange={e => setNewAddress({ ...newAddress, Name: e.target.value })} />
+                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.Name} onChange={e => handleInputChange("Name", e.target.value)} />
                           {formErrors.Name && <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.Name}</p>}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
-                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.PhoneNumber} onChange={e => setNewAddress({ ...newAddress, PhoneNumber: e.target.value })} />
+                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.PhoneNumber} onChange={e => handleInputChange("PhoneNumber", e.target.value)} />
                           {formErrors.PhoneNumber && <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.PhoneNumber}</p>}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Address Type <span className="text-red-500">*</span></label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.AddressType} onChange={e => setNewAddress({ ...newAddress, AddressType: e.target.value })}>
+                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.AddressType} onChange={e => handleInputChange("AddressType", e.target.value)}>
                             <option value="">Select address type</option><option value="Home">Home</option><option value="Work">Work</option><option value="Other">Other</option>
                           </select>
                           {formErrors.AddressType && <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.AddressType}</p>}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1 <span className="text-red-500">*</span></label>
-                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.AddressLine1} onChange={e => setNewAddress({ ...newAddress, AddressLine1: e.target.value })} />
+                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.AddressLine1} onChange={e => handleInputChange("AddressLine1", e.target.value)} />
                           {formErrors.AddressLine1 && <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.AddressLine1}</p>}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Optional)</label>
-                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.AddressLine2} onChange={e => setNewAddress({ ...newAddress, AddressLine2: e.target.value })} />
+                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.AddressLine2} onChange={e => handleInputChange("AddressLine2", e.target.value)} />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">State <span className="text-red-500">*</span></label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.State || ""} onChange={e => { setNewAddress({ ...newAddress, State: e.target.value }); GetCityByStateList(e.target.value); }}>
+                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.State || ""} onChange={e => { handleInputChange("State", e.target.value); setNewAddress(prev => ({...prev, City: ""})); GetCityByStateList(e.target.value); }}>
                             <option value="">Select State</option>{state.map(item => <option key={item.Id} value={item.Name}>{item.Name}</option>)}
                           </select>
                           {formErrors.State && <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.State}</p>}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">City <span className="text-red-500">*</span></label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.City || ""} onChange={e => setNewAddress({ ...newAddress, City: e.target.value })}>
+                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.City || ""} onChange={e => handleInputChange("City", e.target.value)}>
                             <option value="">Select City</option>{city.map(item => <option key={item.Id} value={item.Name}>{item.Name}</option>)}
                           </select>
                           {formErrors.City && <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.City}</p>}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Pincode <span className="text-red-500">*</span></label>
-                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.Pincode} onChange={e => setNewAddress({ ...newAddress, Pincode: e.target.value })} />
+                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.Pincode} onChange={e => handleInputChange("Pincode", e.target.value)} />
                           {formErrors.Pincode && <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.Pincode}</p>}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.Country} onChange={e => setNewAddress({ ...newAddress, Country: e.target.value })} />
+                          <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" value={newAddress.Country} onChange={e => handleInputChange("Country", e.target.value)} />
                         </div>
                       </div>
                       <div className="flex justify-end space-x-3">

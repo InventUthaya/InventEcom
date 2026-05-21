@@ -46,6 +46,13 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
     Country: "India",
   });
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (formErrors[field]) {
+      setFormErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
   // Fetch states on mount
   useEffect(() => {
     DofyGeoService.GetStateList(HelperConstant.serviceTypeId.SELL)
@@ -300,7 +307,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   <input
                     type="text"
                     value={formData.Name}
-                    onChange={(e) => setFormData({ ...formData, Name: e.target.value })}
+                    onChange={(e) => handleInputChange("Name", e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="Full name"
                   />
@@ -313,7 +320,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   <input
                     type="text"
                     value={formData.PhoneNumber}
-                    onChange={(e) => setFormData({ ...formData, PhoneNumber: e.target.value })}
+                    onChange={(e) => handleInputChange("PhoneNumber", e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="10-digit mobile number"
                   />
@@ -325,7 +332,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   <label className="block text-sm font-medium text-gray-700 mb-1">Address Type <span className="text-red-500">*</span></label>
                   <select
                     value={formData.AddressType}
-                    onChange={(e) => setFormData({ ...formData, AddressType: e.target.value })}
+                    onChange={(e) => handleInputChange("AddressType", e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                   >
                     <option value="">Select type</option>
@@ -342,7 +349,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   <input
                     type="text"
                     value={formData.AddressLine1}
-                    onChange={(e) => setFormData({ ...formData, AddressLine1: e.target.value })}
+                    onChange={(e) => handleInputChange("AddressLine1", e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="House no., building, street"
                   />
@@ -355,7 +362,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   <input
                     type="text"
                     value={formData.AddressLine2}
-                    onChange={(e) => setFormData({ ...formData, AddressLine2: e.target.value })}
+                    onChange={(e) => handleInputChange("AddressLine2", e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="Apartment, floor, landmark"
                   />
@@ -367,6 +374,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                     onChange={(e) => {
                       const value = e.target.value;
                       setFormData({ ...formData, State: value, City: "" });
+                      setFormErrors((prev) => ({ ...prev, State: "" }));
                       if (value) loadCities(value);
                     }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
@@ -386,7 +394,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   <label className="block text-sm font-medium text-gray-700 mb-1">City <span className="text-red-500">*</span></label>
                   <select
                     value={formData.City}
-                    onChange={(e) => setFormData({ ...formData, City: e.target.value })}
+                    onChange={(e) => handleInputChange("City", e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     disabled={!formData.State}
                   >
@@ -406,7 +414,7 @@ const SavedAddress = ({ direction, language, addresses, personId, person }: Addr
                   <input
                     type="text"
                     value={formData.Pincode}
-                    onChange={(e) => setFormData({ ...formData, Pincode: e.target.value })}
+                    onChange={(e) => handleInputChange("Pincode", e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="6-digit pincode"
                   />

@@ -27,6 +27,7 @@ type Props = {
 function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
     let URLParamSell = window.location.pathname.includes('checkout');
     const { register, handleSubmit, formState: { errors }, clearErrors, setValue} = useForm<IAddressModel>({
+        mode: 'onChange',
         defaultValues: (defaultValues?.EncryptedAddressId && isEdit) ? { ...defaultValues } : {
             FirstName: getLocalStorage()?.name,
         }
@@ -221,7 +222,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                     type="text"
                                     placeholder="enter your name"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("FirstName", { required: true, onChange: (e: any) => { setValue("FirstName", e.target.value); clearErrors("FirstName"); } })}
+                                    {...register("FirstName", { required: true, onChange: (e: any) => { setValue("FirstName", e.target.value); } })}
                                 />
                                 {errors.FirstName && <p className="text-xs text-red-700 font-semibold">Please Enter Full Name</p>}
                             </div>
@@ -253,7 +254,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                     maxLength={10}
                                     placeholder="Enter Your Mobile number"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("PhoneNumber", { required: true, minLength: 10, maxLength: 10, onChange: (e: any) => { setValue("PhoneNumber", HelperConstant.numberOnlyRegex.regex.test(e.target.value) ? e.target.value : ""); clearErrors("PhoneNumber"); } })}
+                                    {...register("PhoneNumber", { required: true, minLength: 10, maxLength: 10, onChange: (e: any) => { setValue("PhoneNumber", HelperConstant.numberOnlyRegex.regex.test(e.target.value) ? e.target.value : ""); } })}
                                 />
                                 {errors.PhoneNumber && errors.PhoneNumber.type === "required" && (<p className="text-xs font-semibold text-red-700">Please Enter Mobile Number</p>)}
                                 {errors.PhoneNumber && (errors.PhoneNumber.type === "minLength" || errors.PhoneNumber.type === "maxLength") && (<p className="text-xs font-semibold text-red-700">Please enter valid Mobile Number</p>)}
@@ -280,7 +281,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                             const value = e.target.value;
                                             if (/^[0-9]*$/.test(value)) { 
                                                 setValue("Pincode", value);
-                                                clearErrors("Pincode");
+                                               
                                             }
                                         },
                                     })}
@@ -309,7 +310,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                     id="AddressLine2"
                                     placeholder="Enter Your Landmark"
                                     className="placeholder:capitalize border resize-none text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("AddressLine2", { required: false, onChange: (e: any) => { setValue("AddressLine2", e.target.value); clearErrors("AddressLine2"); } })}
+                                    {...register("AddressLine2", { required: false, onChange: (e: any) => { setValue("AddressLine2", e.target.value); } })}
                                 />
                                 {errors.AddressLine2 && <p className="text-xs font-semibold text-red-700">Please Enter Your Landmark</p>}
                             </div>
@@ -327,7 +328,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                     type="text"
                                     placeholder="Enter Your City"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("City", { required: true, onChange: (e: any) => { setValue("City", e.target.value); clearErrors("City"); } })}
+                                    {...register("City", { required: true, onChange: (e: any) => { setValue("City", e.target.value); } })}
                                 />
                                 {errors.City && <p className="text-xs text-red-700 font-semibold">Please Enter City</p>}
                             </div>
@@ -346,7 +347,7 @@ function AddressFormIN({ defaultValues, isEdit, setShowAddress }: Props) {
                                 placeholder="Enter Your Delivery Address"
                                 className="placeholder:capitalize border resize-none text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
                                 rows={4}
-                                {...register("AddressLine1", { required: true, onChange: (e: any) => { setValue("AddressLine1", e.target.value); clearErrors("AddressLine1"); } })}
+                                {...register("AddressLine1", { required: true, onChange: (e: any) => { setValue("AddressLine1", e.target.value); } })}
                             />
                             {errors.AddressLine1 && <p className="text-xs font-semibold text-red-700">Please Enter Address</p>}
                         </div>

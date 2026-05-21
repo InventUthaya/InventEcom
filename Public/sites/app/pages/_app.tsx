@@ -13,6 +13,7 @@ import { App, URLOpenListenerEvent } from '@capacitor/app';
 import dynamic from 'next/dynamic';
 import UpdateUI from 'shared/src/components/app/updateUI/UpdateUI';
 import { Capacitor } from '@capacitor/core';
+import GlobalLoader from 'shared/src/components/utils/Loader/GlobalLoader';
 
 type AppUpdateProps = { Android_Version: string, IOS_Version: string, Android_Forced_Update: boolean, IOS_Forced_Update: boolean }
 
@@ -241,6 +242,7 @@ function Apps({ Component, pageProps }: AppProps) {
   }
 
   return <RecoilRoot>
+    <GlobalLoader />
     {(forcedUpdate || flexibleUpdate) && <UpdateUI forcedUpdate={forcedUpdate} flexibleUpdate={flexibleUpdate} noUpdate={noUpdate} />}
     {/* {switchGeoStatus == "open" && <SwitchLocationPopup handleLocationChoice={handleLocationChoice} />} */}
     <Component {...pageProps} />

@@ -26,6 +26,7 @@ type Props = {
 function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
     let URLParamSell = window.location.pathname.includes('checkout');
     const { register, handleSubmit, formState: { errors }, clearErrors, setValue, getValues } = useForm<IAddressModel>({
+        mode: 'onChange',
         defaultValues: (defaultValues?.EncryptedAddressId && defaultValues?.EncryptedAddressId != "" && isEdit) ? { ...defaultValues } : {
             FirstName: getLocalStorage()?.name,
             PhoneNumber: getLocalStorage()?.MobileNumber
@@ -124,7 +125,7 @@ function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
         const selectedCity = state.find((city) => city.Id === Number(selectedCityId));
         if (selectedCity) {
             setValue("City", selectedCity.Name);
-            clearErrors("City");
+           
             GetAllDofyGeoBysearch(selectedCity.EncryptedId, '', '', '');
         }
     };
@@ -136,7 +137,7 @@ function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
             // Store the area/district name in a field that exists in IAddressModel
             // Assuming 'State' or another appropriate field exists in IAddressModel
             setValue("State", selectedGeo.Name);
-            clearErrors("State");
+           
         }
     };
 
@@ -309,7 +310,7 @@ function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
                                     type="text"
                                     placeholder="enter your name"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("FirstName", { required: true, onChange: (e: any) => { setValue("FirstName", e.target.value); clearErrors("FirstName"); } })}
+                                    {...register("FirstName", { required: true, onChange: (e: any) => { setValue("FirstName", e.target.value); } })}
                                 />
                                 {errors.FirstName && <p className="text-xs text-red-700 font-semibold">Please Enter Full Name</p>}
                             </div>
@@ -325,7 +326,7 @@ function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
                                     type="text"
                                     placeholder="enter your name"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("LastName", { required: true, onChange: (e: any) => { setValue("LastName", e.target.value); clearErrors("LastName"); } })}
+                                    {...register("LastName", { required: true, onChange: (e: any) => { setValue("LastName", e.target.value); } })}
                                 />
                                 {errors.LastName && <p className="text-xs text-red-700 font-semibold">Please Enter Last Name</p>}
                             </div> */}
@@ -342,7 +343,7 @@ function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
                                     maxLength={10}
                                     placeholder="Enter Your Mobile number"
                                     className="placeholder:capitalize border text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("PhoneNumber", { required: true, minLength: 9, maxLength: 9, onChange: (e: any) => { setValue("PhoneNumber", HelperConstant.numberOnlyRegex.regex.test(e.target.value) ? e.target.value : ""); clearErrors("PhoneNumber"); } })}
+                                    {...register("PhoneNumber", { required: true, minLength: 9, maxLength: 9, onChange: (e: any) => { setValue("PhoneNumber", HelperConstant.numberOnlyRegex.regex.test(e.target.value) ? e.target.value : ""); } })}
                                 />
                                 {errors.PhoneNumber && errors.PhoneNumber.type === "required" && (<p className="text-xs font-semibold text-red-700">Please Enter Mobile Number</p>)}
                                 {errors.PhoneNumber && (errors.PhoneNumber.type === "minLength" || errors.PhoneNumber.type === "maxLength") && (<p className="text-xs font-semibold text-red-700">Please enter valid Mobile Number</p>)}
@@ -359,7 +360,7 @@ function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
                                     id="AddressLine2" // Changed from Address2 to AddressLine2
                                     placeholder="Enter Your Landmark"
                                     className="placeholder:capitalize border resize-none text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
-                                    {...register("AddressLine2", { required: false, onChange: (e: any) => { setValue("AddressLine2", e.target.value); clearErrors("AddressLine2"); } })}
+                                    {...register("AddressLine2", { required: false, onChange: (e: any) => { setValue("AddressLine2", e.target.value); } })}
                                 />
                                 {errors.AddressLine2 && <p className="text-xs font-semibold text-red-700">Please Enter Your Landmark</p>}
                             </div>
@@ -421,7 +422,7 @@ function AddressFormAE({ defaultValues, isEdit, setShowAddress }: Props) {
                                 placeholder="Enter Your Delivery Address"
                                 className="placeholder:capitalize border resize-none text-xs 2xl:text-sm border-[#DFDFDF] p-2 rounded-md"
                                 rows={4}
-                                {...register("AddressLine1", { required: true, onChange: (e: any) => { setValue("AddressLine1", e.target.value); clearErrors("AddressLine1"); } })}
+                                {...register("AddressLine1", { required: true, onChange: (e: any) => { setValue("AddressLine1", e.target.value); } })}
                             />
                             {errors.AddressLine1 && <p className="text-xs font-semibold text-red-700">Please Enter Address</p>}
                         </div>
