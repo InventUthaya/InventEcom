@@ -77,6 +77,9 @@ interface ICartItemModel {
   ImageBase64?: string;
   base64Images?: string;
   ImagePath?: string;
+  TaxRate?: number;
+  IsInclusive?: boolean;
+  TaxAmount?: number;
 }
 
 interface ICartResponseModel {
@@ -151,17 +154,36 @@ function Cart({ cart, cartList, direction, language, isSSR, metaTags }: CartProp
     setPromoCodeMessage(discountMessage);
   };
 
+  let taxTotal = 0;
+  let hasExclusiveTax = false;
+
   const totalCartPrice = shoppingCartList.cartList.reduce((total, item) => {
-    return total + (item.TotalPrice || 0);
+    const basePrice = item.TotalPrice || 0;
+    const tax = item.TaxAmount || (basePrice * (item.TaxRate || 0) / 100);
+    
+    if (item.IsInclusive === false) {
+      hasExclusiveTax = true;
+      taxTotal += tax;
+      return total + basePrice;
+    } else {
+      return total + basePrice + tax;
+    }
   }, 0);
 
   const totalCartMRP = shoppingCartList.cartList.reduce((total, item) => {
-    return total + (item.TotalPrice || (item.TotalPrice || 0) * (item.CartQuantity || 1));
+    const baseMRP = item.TotalMRP || (item.MRP || item.TotalPrice || 0) * (item.CartQuantity || 1);
+    const tax = item.TaxRate ? baseMRP * (item.TaxRate / 100) : 0;
+    
+    if (item.IsInclusive === false) {
+      return total + baseMRP;
+    } else {
+      return total + baseMRP + tax;
+    }
   }, 0);
 
   const totalDiscount = totalCartMRP - totalCartPrice;
 
-  const finalAmount = promoDiscount ? totalCartPrice - promoDiscount : totalCartPrice;
+  const finalAmount = (promoDiscount ? totalCartPrice - promoDiscount : totalCartPrice) + taxTotal;
 
   const proceedWithOrder = () => {
     if (!PersonId) {
@@ -297,8 +319,8 @@ function Cart({ cart, cartList, direction, language, isSSR, metaTags }: CartProp
                               key={index}
                               productName={item.ProductName}
                               shortDescription={item.Description}
-                              price={item.SellingPrice || item.TotalPrice / (item.CartQuantity || 1)}
-                              oldPrice={item.MRP}
+                              price={(item.SellingPrice || item.TotalPrice / (item.CartQuantity || 1)) + ((item.SellingPrice || item.TotalPrice / (item.CartQuantity || 1)) * (item.TaxRate || 0) / 100)}
+                              oldPrice={(item.MRP || (item.TotalMRP || 0) / (item.CartQuantity || 1)) + ((item.MRP || (item.TotalMRP || 0) / (item.CartQuantity || 1)) * (item.TaxRate || 0) / 100)}
                               cartId={item.CartId}
                               encryptedCartId={item.EncryptedShoppingCartId}
                               setRefresh={setRefresh}
@@ -393,17 +415,17 @@ function Cart({ cart, cartList, direction, language, isSSR, metaTags }: CartProp
                             Price ({shoppingCartList.cartList.length} {shoppingCartList.cartList.length === 1 ? "Item" : "Items"})
                           </span>
                           <span className="font-bold text-sm lg:text-base">
-                            {currencyByCountry(formatPrice(totalCartMRP))}
+                            {currencyByCountry(formatPrice(totalCartPrice))}
                           </span>
                         </div>
-                        {/* {totalDiscount > 0 && (
-                        <div className="flex justify-between text-[#252525] font-light capitalize">
-                          <span className="font-semibold text-sm lg:text-base">Discounts applied</span>
-                          <span className="font-bold text-sm lg:text-base text-green-600">
-                            - {currencyByCountry(formatPrice(totalDiscount))}
-                          </span>
-                        </div>
-                      )} */}
+                        {hasExclusiveTax && (
+                          <div className="flex justify-between text-[#252525] font-light capitalize">
+                            <span className="font-semibold text-sm lg:text-base">Tax (Excl.)</span>
+                            <span className="font-bold text-sm lg:text-base">
+                              + {currencyByCountry(formatPrice(taxTotal))}
+                            </span>
+                          </div>
+                        )}
                         {/* <div className="flex justify-between text-[#252525] font-light capitalize">
                         <span className="font-semibold text-sm lg:text-base">Promo code</span>
                         {isPromoCode && (

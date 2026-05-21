@@ -143,7 +143,7 @@ const ProductDashboard = () => {
       brandName: item.BrandName,
       ramSize: item.RamSize,
       storageSize: item.StorageSize,
-      basePrice: item.BasePrice,
+      basePrice: Math.round(item.BasePrice),
       taxId: item.TaxId,
       statusId: item.StatusId,
       statusName: item.StatusName,
@@ -157,56 +157,56 @@ const ProductDashboard = () => {
   };
 
   const fetchProducts = async (
-  page: number = currentPage,
-  size: number = rowsPerPage,
-  search: string = '',
-  sortColumn: string = '',
-  sortOrder: string = 'asc',
-  active: number | null = null,
-  userId: number
-) => {
-  setIsLoading(true);
-  const requestData = buildSearchRequest(page, size, search, sortColumn, sortOrder, active, userId);
-  try {
-    const response = await CommonService.post('products', 'SearchProducts', requestData);
-    if (response.status === 200) {
-      const apiProducts: ApiProduct[] = response.data.Products || [];
-      const transformedProducts = mapApiToProduct(apiProducts);
-      setProducts(transformedProducts);
-      
-      // FIX: Get total records from first product item, not from root
-      // Each product has TotalRecords: 19 (actual total from database)
-      let serverTotalRecords = 0;
-      if (apiProducts.length > 0 && apiProducts[0].TotalRecords) {
-        serverTotalRecords = apiProducts[0].TotalRecords;
+    page: number = currentPage,
+    size: number = rowsPerPage,
+    search: string = '',
+    sortColumn: string = '',
+    sortOrder: string = 'asc',
+    active: number | null = null,
+    userId: number
+  ) => {
+    setIsLoading(true);
+    const requestData = buildSearchRequest(page, size, search, sortColumn, sortOrder, active, userId);
+    try {
+      const response = await CommonService.post('products', 'SearchProducts', requestData);
+      if (response.status === 200) {
+        const apiProducts: ApiProduct[] = response.data.Products || [];
+        const transformedProducts = mapApiToProduct(apiProducts);
+        setProducts(transformedProducts);
+
+        // FIX: Get total records from first product item, not from root
+        // Each product has TotalRecords: 19 (actual total from database)
+        let serverTotalRecords = 0;
+        if (apiProducts.length > 0 && apiProducts[0].TotalRecords) {
+          serverTotalRecords = apiProducts[0].TotalRecords;
+        } else {
+          // Fallback to root TotalRecords if not found in products
+          serverTotalRecords = response.data.TotalRecords || 0;
+        }
+
+        setTotalRecords(serverTotalRecords);
+
+        // Calculate if there are more pages
+        const hasMoreRecords = (page * size) < serverTotalRecords;
+        setHasMore(hasMoreRecords);
+
+        setCurrentPage(page);
       } else {
-        // Fallback to root TotalRecords if not found in products
-        serverTotalRecords = response.data.TotalRecords || 0;
+        setToast({ msg: 'Failed to fetch products', type: 'error' });
+        setProducts([]);
+        setTotalRecords(0);
+        setHasMore(false);
       }
-      
-      setTotalRecords(serverTotalRecords);
-      
-      // Calculate if there are more pages
-      const hasMoreRecords = (page * size) < serverTotalRecords;
-      setHasMore(hasMoreRecords);
-      
-      setCurrentPage(page);
-    } else {
-      setToast({ msg: 'Failed to fetch products', type: 'error' });
+    } catch (e: any) {
+      console.error('Error fetching products:', e);
+      setToast({ msg: e.response?.data?.message || 'Failed to fetch products', type: 'error' });
       setProducts([]);
       setTotalRecords(0);
       setHasMore(false);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (e: any) {
-    console.error('Error fetching products:', e);
-    setToast({ msg: e.response?.data?.message || 'Failed to fetch products', type: 'error' });
-    setProducts([]);
-    setTotalRecords(0);
-    setHasMore(false);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   // Remove client-side filtering and pagination - use server-side only
   const filteredProducts = useMemo(() => {
@@ -463,7 +463,7 @@ const ProductDashboard = () => {
                 onRowsPerPageChange={handleRowsPerPageChange}
               />
             </div>
-            
+
             {/* Add Custom Pagination Component */}
             {filteredProducts.length > 0 && (
               <Pagination
