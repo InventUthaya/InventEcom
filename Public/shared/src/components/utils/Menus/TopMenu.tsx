@@ -5,6 +5,7 @@ import OpacityLoad from "../../animation/opacityLoad";
 import Signup from "../../web/auth";
 import { useRouter } from "next/router";
 import { useRecoilState, useRecoilValue } from "recoil";
+import { Reloader } from "shared/src/recoil/Reloader";
 import {
   LoginModalHandler,
   ShowLoginPage,
@@ -99,6 +100,8 @@ export default function Menu({
     return string.replace(/\b\w/g, char => char.toUpperCase());
   };
 
+  const reload = useRecoilValue(Reloader);
+
   useEffect(() => {
     setMounted(true);
     const CityId = findWindow() && localStorage.getItem("CityId");
@@ -112,7 +115,7 @@ export default function Menu({
     } else if (PersonId) {
       getProductlogin();
     }
-  }, [productId]);
+  }, [productId, PersonId, reload]);
 
   return (
     <>
