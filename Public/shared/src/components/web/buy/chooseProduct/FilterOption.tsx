@@ -136,8 +136,9 @@ function FilterOption() {
 
   const clearFilters = useClearFilters();
 
-  // Check if the URL ends with "_Brand"
-  const hideBrandFilter = router.asPath.endsWith("_Brand");
+  // Check if the URL ends with "_Brand" or we are on a brand-specific page
+  const hideBrandFilter = router.asPath.endsWith("_Brand") || router.asPath.includes("/brand/") ||
+    router.asPath.includes("/buy/brand") || router.query.productId === "brand";
 
   // Filter specifications to exclude "Brand" if hideBrandFilter is true
   const filteredSpecifications = hideBrandFilter
