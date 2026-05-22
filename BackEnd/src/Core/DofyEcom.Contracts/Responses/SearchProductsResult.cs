@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +37,9 @@ namespace DofyEcom.Contracts
         public string RamSize { get; set; }
         public int? StorageId { get; set; }
         public string StorageSize { get; set; }
+        public int? ColorId { get; set; }
+        public string ColorName { get; set; }
+        public string HexCode { get; set; }
 
         // Pricing and Stock
         public decimal BasePrice { get; set; }

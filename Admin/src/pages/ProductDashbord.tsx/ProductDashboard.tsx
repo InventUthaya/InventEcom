@@ -26,6 +26,9 @@ interface ApiProduct {
   BrandName?: string | null;
   RamSize?: string | null;
   StorageSize?: string | null;
+  ColorId?: number | null;
+  ColorName?: string | null;
+  HexCode?: string | null;
   BasePrice: number;
   TaxId: number | null;
   StatusId: number;
@@ -52,6 +55,9 @@ interface Product {
   brandName?: string | null;
   ramSize?: string | null;
   storageSize?: string | null;
+  colorId?: number | null;
+  colorName?: string | null;
+  hexCode?: string | null;
   basePrice: number;
   taxId: number | null;
   statusId: number;
@@ -95,7 +101,8 @@ const ProductDashboard = () => {
     { header: 'Name', accessor: 'name', displayInList: true, sortable: true, className: 'min-w-[100px] px-6' },
     { header: 'Category', accessor: 'categoryName', displayInList: true, sortable: true, className: 'min-w-[100px] px-6' },
     { header: 'Brand', accessor: 'brandName', displayInList: true, sortable: true, className: 'min-w-[100px] px-6' },
-    { header: 'size', accessor: 'ramSize', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
+    { header: 'd Internal', accessor: 'colorName', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
+    { header: 'D External', accessor: 'ramSize', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
     { header: 'B Width', accessor: 'storageSize', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
     { header: 'Base Price', accessor: 'basePrice', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
     { header: 'Created', accessor: 'created', displayInList: true, datatype: 'datetime', className: 'min-w-[100px] px-6' },
@@ -143,6 +150,9 @@ const ProductDashboard = () => {
       brandName: item.BrandName,
       ramSize: item.RamSize,
       storageSize: item.StorageSize,
+      colorId: item.ColorId,
+      colorName: item.ColorName,
+      hexCode: item.HexCode,
       basePrice: Math.round(item.BasePrice),
       taxId: item.TaxId,
       statusId: item.StatusId,
