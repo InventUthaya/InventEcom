@@ -187,10 +187,12 @@ const FilterDropDown = (props: any) => {
 
   const displayTitle =
     props.title === "Ram"
-      ? "Size"
+      ? "D External"
       : props.title === "Storage"
-        ? "Materials"
-        : props.title;
+        ? "B Width"
+        : props.title === "Color"
+          ? "d Internal"
+          : props.title;
 
   return (
     <div className={`${props.border ? "border-b border-[#D9D9D9]" : ""}`}>

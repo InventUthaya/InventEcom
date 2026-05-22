@@ -1451,7 +1451,7 @@ namespace DofyEcom.Model
             }
         }
 
-        public PagedList<FilterViewModel> GetSpecificationFilter(string? Brand, string? Condition, string? Storage, string? ItemCategory, string? Price, string? Category, string? Ram)
+        public PagedList<FilterViewModel> GetSpecificationFilter(string? Brand, string? Condition, string? Storage, string? ItemCategory, string? Price, string? Category, string? Ram, string? Color)
         {
             var param = new
             {
@@ -1461,7 +1461,8 @@ namespace DofyEcom.Model
                 ItemCategory = ItemCategory,
                 Price = Price,
                 Category = Category,
-                Ram = Ram
+                Ram = Ram,
+                Color = Color
             };
 
             var results = this.GetPagedSProcResult<FilterViewModel>(Database.SP_GetSpecificationFilter, param);

@@ -353,10 +353,9 @@ namespace DofyEcom.Public.API.Controllers
 
         [HttpPost]
         [Route("GetSpecificationFilter")]
-        public async Task<PagedList<FilterViewModel>> GetSpecificationFilter([FromQuery] string? Brand, string? Condition, string? Storage, string? ItemCategory, string? Price, string? Category, string? Ram)
+        public async Task<PagedList<FilterViewModel>> GetSpecificationFilter([FromQuery] string? Brand, string? Condition, string? Storage, string? ItemCategory, string? Price, string? Category, string? Ram, string? Color)
         {
             //int id = 0;
-
             //if (!string.IsNullOrWhiteSpace(CategoryId) &&
             //    CategoryId != "undefined" &&
             //    IsValidHex(CategoryId))
@@ -366,7 +365,7 @@ namespace DofyEcom.Public.API.Controllers
 
             var result = await Task.Run(() =>   
             {
-                return this.Contract.GetSpecificationFilter(Brand, Condition, Storage, ItemCategory, Price, Category, Ram);
+                return this.Contract.GetSpecificationFilter(Brand, Condition, Storage, ItemCategory, Price, Category, Ram, Color);
             });
 
             return result;

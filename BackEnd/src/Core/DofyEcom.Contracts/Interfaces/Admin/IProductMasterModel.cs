@@ -44,7 +44,7 @@ namespace DofyEcom.Contracts
 
         Task<PagedList<ProductDetailsViewModel>> GetRelatedProductById(int productId);
 
-        PagedList<FilterViewModel> GetSpecificationFilter(string? Brand, string? Condition, string? StorageSize, string? ItemCategory, string? Price, string? Category, string? Ram);
+        PagedList<FilterViewModel> GetSpecificationFilter(string? Brand, string? Condition, string? StorageSize, string? ItemCategory, string? Price, string? Category, string? Ram, string? Color);
 
         PagedList<FilterViewModel> GetSpecificationDetails();
 

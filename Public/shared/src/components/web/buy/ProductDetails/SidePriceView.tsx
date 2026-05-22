@@ -459,10 +459,10 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
       ) : null}
       {/* Combined Variant Section - Row Layout */}
       <div className="grid grid-cols-3 p-5 bg-white rounded-xl border border-[#F2F2F2] mt-4 divide-x divide-gray-100">
-        {/* D INTERNAL */}
+        {/* D EXTERNAL */}
         <div className="px-4 first:pl-0">
           <div className="text-xs font-extrabold tracking-wider text-zinc-950 uppercase mb-3">
-            D INTERNAL
+            D EXTERNAL
           </div>
           {isProductOutOfStock ? (
             <div className="text-red-600 font-semibold text-sm">Out of Stock</div>
@@ -488,10 +488,10 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
           )}
         </div>
 
-        {/* D EXTERNAL */}
+        {/* D INTERNAL */}
         <div className="px-4">
           <div className="text-xs font-extrabold tracking-wider text-zinc-950 uppercase mb-3">
-            D EXTERNAL
+            D INTERNAL
           </div>
           {isProductOutOfStock ? (
             <div className="text-red-600 font-semibold text-sm">Out of Stock</div>
