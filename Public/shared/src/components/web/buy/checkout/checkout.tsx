@@ -643,7 +643,6 @@ export default function SimpleCheckoutPage() {
                             </div>
                             <div className="mt-2 flex items-center justify-between">
                               <div>
-                                <p className="text-sm text-gray-600">Colour: {item.ColorName}</p>
                                 {item.BrandName && <p className="text-sm text-gray-600">Brand: {item.BrandName}</p>}
                               </div>
                               <div className="text-right">
