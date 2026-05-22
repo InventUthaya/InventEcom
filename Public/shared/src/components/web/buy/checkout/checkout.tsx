@@ -274,11 +274,11 @@ export default function SimpleCheckoutPage() {
       const itemBackendDisc = originalProductTotal > 0 ? Math.round((itemOriginalTotal / originalProductTotal) * backendDiscount) : 0;
       const itemBaseAfterBackend = itemOriginalTotal - itemBackendDisc;
       const itemPromoDisc = baseForPromo > 0 ? Math.round((itemBaseAfterBackend / baseForPromo) * promoDiscount) : 0;
+      const itemPrePromoUnitPrice = itemBaseAfterBackend / item.Quantity;
+      const itemNewTax = itemPrePromoUnitPrice * (item.TaxRate / 100.0) * item.Quantity;
+      
       const itemNetTotal = itemOriginalTotal - itemBackendDisc - itemPromoDisc;
-      const itemNetUnitPrice = itemNetTotal / item.Quantity;
-
-      const itemNewTax = itemNetUnitPrice * (item.TaxRate / 100.0) * item.Quantity;
-      const itemNewTotal = itemNetUnitPrice * item.Quantity;
+      const itemNewTotal = itemNetTotal;
 
       newProductTotal += itemNewTotal;
       newTaxTotal += itemNewTax;
