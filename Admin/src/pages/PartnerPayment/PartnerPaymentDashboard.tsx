@@ -34,6 +34,8 @@ interface StatsData {
     TotalCommissionAmount: any;
     TotalPaidAmount: any;
     TotalPayableAmount: any;
+    TotalTaxAmount: any;
+    TotalPartnerAmount: any;
 }
 
 export default function PaymentDashboard() {
@@ -65,7 +67,7 @@ export default function PaymentDashboard() {
             if (res.status === 200) {
                 const responseData = Array.isArray(res.data) ? res.data : [];
                 setPartnerData(responseData);
-                
+
                 // Calculate total records and hasMore based on response
                 // Since SP doesn't return total count, we'll estimate based on current page
                 if (responseData.length > 0) {
@@ -74,19 +76,19 @@ export default function PaymentDashboard() {
                     if (firstItem.TotalPayableAmount || firstItem.TotalCommissionAmount) {
                         // If we have aggregated totals, we can estimate
                         // This is a workaround since SP doesn't return total count
-                        setTotalRecords(responseData.length === pageSize ? 
-                            (currentPage * pageSize) + 1 : 
+                        setTotalRecords(responseData.length === pageSize ?
+                            (currentPage * pageSize) + 1 :
                             (currentPage - 1) * pageSize + responseData.length);
                     } else {
                         // Fallback: estimate based on current page and data length
-                        setTotalRecords(responseData.length === pageSize ? 
-                            (currentPage * pageSize) + 1 : 
+                        setTotalRecords(responseData.length === pageSize ?
+                            (currentPage * pageSize) + 1 :
                             (currentPage - 1) * pageSize + responseData.length);
                     }
                 } else {
                     setTotalRecords(0);
                 }
-                
+
                 // Set hasMore based on whether we got a full page
                 setHasMore(responseData.length === pageSize);
             }
@@ -123,7 +125,7 @@ export default function PaymentDashboard() {
 
     const handlePayment = async (e: React.MouseEvent, partner: PaymentDashboardData) => {
         e.stopPropagation();
-        const partnerAmount = parseFloat(partner.PartnerAmount);
+        const partnerAmount = parseFloat(partner.TotalCommission);
         if (!partnerAmount || partnerAmount <= 0) {
             return;
         }
@@ -165,15 +167,21 @@ export default function PaymentDashboard() {
 
     const STAT_STYLES: Record<string, { bg: string; iconBg: string; text: string }> = {
         'Total': { bg: 'bg-blue-50', iconBg: 'bg-blue-100', text: 'text-blue-700' },
+        'tax': { bg: 'bg-red-50', iconBg: 'bg-red-100', text: 'text-red-700' },
+        'partnerAmount': { bg: 'bg-purple-50', iconBg: 'bg-purple-100', text: 'text-purple-700' },
         'commision': { bg: 'bg-sky-50', iconBg: 'bg-sky-100', text: 'text-sky-700' },
         'payable': { bg: 'bg-amber-50', iconBg: 'bg-amber-100', text: 'text-amber-700' },
         'paid': { bg: 'bg-green-50', iconBg: 'bg-green-100', text: 'text-green-700' },
+
     };
 
     const totalOrders = statesData.reduce((s, p) => s + Number(p.GrandTotal || 0), 0);
+    const totalTax = statesData.reduce((s, p) => s + Number(p.TotalTaxAmount || 0), 0);
+    const totalPartnerAmount = statesData.reduce((s, p) => s + Number(p.TotalPartnerAmount || 0), 0);
     const totalCommission = statesData.reduce((s, p) => s + Number(p.TotalCommissionAmount || 0), 0);
     const totalPayable = statesData.reduce((s, p) => s + Number(p.TotalPayableAmount || 0), 0);
     const totalPaid = statesData.reduce((s, p) => s + Number(p.TotalPaidAmount || 0), 0);
+
 
     const getPaymentStatusText = (statusId: any) => {
         switch (Number(statusId)) {
@@ -187,12 +195,12 @@ export default function PaymentDashboard() {
     };
 
     return (
-        <> 
+        <>
             <h1 className="text-xl font-semibold text-gray-900 mb-6">
                 Payment Dashboard
             </h1>
             <div className="mt-4 max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                     {/* Total */}
                     <div className={`flex items-center justify-between p-3 rounded-lg border ${STAT_STYLES.Total.bg}`}>
                         <div className="flex items-center gap-3">
@@ -203,6 +211,36 @@ export default function PaymentDashboard() {
                                 <p className="text-xs font-medium text-gray-700">Total</p>
                                 <p className={`text-sm font-bold ${STAT_STYLES.Total.text}`}>
                                     {totalOrders}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tax */}
+                    <div className={`flex items-center justify-between p-3 rounded-lg border ${STAT_STYLES.tax.bg}`}>
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-md ${STAT_STYLES.tax.iconBg}`}>
+                                <IndianRupee className="w-4 h-4 text-red-700" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-700">Tax Amount</p>
+                                <p className={`text-sm font-bold ${STAT_STYLES.tax.text}`}>
+                                    ₹{totalTax}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Partner Amount */}
+                    <div className={`flex items-center justify-between p-3 rounded-lg border ${STAT_STYLES.partnerAmount.bg}`}>
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-md ${STAT_STYLES.partnerAmount.iconBg}`}>
+                                <Wallet className="w-4 h-4 text-purple-700" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-700">Partner Amount</p>
+                                <p className={`text-sm font-bold ${STAT_STYLES.partnerAmount.text}`}>
+                                    ₹{totalPartnerAmount}
                                 </p>
                             </div>
                         </div>
@@ -252,9 +290,11 @@ export default function PaymentDashboard() {
                             </div>
                         </div>
                     </div>
+
+
                 </div>
             </div>
-            
+
             <div className="min-h-screen bg-gray-50">
                 <div className="max-w-7xl mx-auto p-4">
                     <div className="bg-white rounded-lg shadow-sm">
@@ -354,23 +394,23 @@ export default function PaymentDashboard() {
                                                                 className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
                                                                 title="Pay Commission"
                                                             >
-                                                            {updatingPayment && selectedPartner?.PartnerId === data.PartnerId ? (
-                                                                <div className="h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                                                            ) : (
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    className="h-6 w-6 text-green-600"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                    stroke="currentColor"
-                                                                    strokeWidth={1.5}
-                                                                >
-                                                                    <rect x="2" y="4" width="20" height="16" rx="3" ry="3" />
-                                                                    <line x1="2" y1="10" x2="22" y2="10" />
-                                                                    <path d="M6 14h.01M10 14h.01M14 14h.01" />
-                                                                </svg>
-                                                            )}
-                                                        </button>
+                                                                {updatingPayment && selectedPartner?.PartnerId === data.PartnerId ? (
+                                                                    <div className="h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                                                ) : (
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        className="h-6 w-6 text-green-600"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke="currentColor"
+                                                                        strokeWidth={1.5}
+                                                                    >
+                                                                        <rect x="2" y="4" width="20" height="16" rx="3" ry="3" />
+                                                                        <line x1="2" y1="10" x2="22" y2="10" />
+                                                                        <path d="M6 14h.01M10 14h.01M14 14h.01" />
+                                                                    </svg>
+                                                                )}
+                                                            </button>
                                                         )}
                                                     </div>
                                                 </td>
@@ -408,7 +448,7 @@ export default function PaymentDashboard() {
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-md relative">
                         <Elements stripe={stripePromise} options={{ clientSecret }}>
                             <StripePaymentForm
-                                amount={parseFloat(selectedPartner.PartnerAmount)}
+                                amount={parseFloat(selectedPartner.TotalCommission)}
                                 clientSecret={clientSecret}
                                 onSuccess={onPaymentSuccess}
                                 onClose={onCloseModal}

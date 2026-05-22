@@ -39,6 +39,8 @@ interface StatsData {
     TotalCommissionAmount: any;
     TotalPaidAmount: any;
     TotalPayableAmount: any;
+    TotalTaxAmount: any;
+    TotalPartnerAmount: any;
 }
 
 export default function PaymentDetails() {
@@ -112,7 +114,7 @@ export default function PaymentDetails() {
 
     const handlePayment = async (e: React.MouseEvent, order: PaymentDashboardData) => {
         e.stopPropagation();
-        const commissionAmount = parseFloat(order.PartnerAmount);
+        const commissionAmount = parseFloat(order.CommissionAmount);
         if (!commissionAmount || commissionAmount <= 0) {
             alert("No commission amount to pay for this order.");
             return;
@@ -167,12 +169,16 @@ export default function PaymentDetails() {
         'commision': { bg: 'bg-sky-50', iconBg: 'bg-sky-100', text: 'text-sky-700' },
         'payable': { bg: 'bg-amber-50', iconBg: 'bg-amber-100', text: 'text-amber-700' },
         'paid': { bg: 'bg-green-50', iconBg: 'bg-green-100', text: 'text-green-700' },
+        'tax': { bg: 'bg-red-50', iconBg: 'bg-red-100', text: 'text-red-700' },
+        'partnerAmount': { bg: 'bg-purple-50', iconBg: 'bg-purple-100', text: 'text-purple-700' },
     };
 
     const totalOrders = statesData.reduce((s, p) => s + Number(p.GrandTotal || 0), 0);
     const totalCommission = statesData.reduce((s, p) => s + Number(p.TotalCommissionAmount || 0), 0);
     const totalPayable = statesData.reduce((s, p) => s + Number(p.TotalPayableAmount || 0), 0);
     const totalPaid = statesData.reduce((s, p) => s + Number(p.TotalPaidAmount || 0), 0);
+    const totalTax = statesData.reduce((s, p) => s + Number(p.TotalTaxAmount || 0), 0);
+    const totalPartnerAmount = statesData.reduce((s, p) => s + Number(p.TotalPartnerAmount || 0), 0);
 
     const getPaymentStatusText = (statusId: any) => {
         switch (Number(statusId)) {
@@ -193,7 +199,7 @@ export default function PaymentDetails() {
             </h1>
 
             <div className="mt-4 max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
 
                     {/* Total */}
                     <div className={`flex items-center justify-between p-3 rounded-lg border ${STAT_STYLES.Total.bg}`}>
@@ -205,6 +211,36 @@ export default function PaymentDetails() {
                                 <p className="text-xs font-medium text-gray-700">Total</p>
                                 <p className={`text-sm font-bold ${STAT_STYLES.Total.text}`}>
                                     {totalOrders}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tax */}
+                    <div className={`flex items-center justify-between p-3 rounded-lg border ${STAT_STYLES.tax.bg}`}>
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-md ${STAT_STYLES.tax.iconBg}`}>
+                                <IndianRupee className="w-4 h-4 text-red-700" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-700">Tax Amount</p>
+                                <p className={`text-sm font-bold ${STAT_STYLES.tax.text}`}>
+                                    ₹{totalTax}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Partner Amount */}
+                    <div className={`flex items-center justify-between p-3 rounded-lg border ${STAT_STYLES.partnerAmount.bg}`}>
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-md ${STAT_STYLES.partnerAmount.iconBg}`}>
+                                <Wallet className="w-4 h-4 text-purple-700" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-700">Partner Amount</p>
+                                <p className={`text-sm font-bold ${STAT_STYLES.partnerAmount.text}`}>
+                                    ₹{totalPartnerAmount}
                                 </p>
                             </div>
                         </div>
@@ -254,7 +290,6 @@ export default function PaymentDetails() {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
             <div className="min-h-screen bg-gray-50">
@@ -359,7 +394,7 @@ export default function PaymentDetails() {
                     <div className="bg-white rounded-lg shadow-2xl w-full max-w-md">
                         <Elements stripe={stripePromise} options={{ clientSecret }}>
                             <StripePaymentForm
-                                amount={parseFloat(selectedOrder.PartnerAmount)}
+                                amount={parseFloat(selectedOrder.CommissionAmount)}
                                 clientSecret={clientSecret}
                                 onSuccess={onPaymentSuccess}
                                 onClose={onCloseModal}
