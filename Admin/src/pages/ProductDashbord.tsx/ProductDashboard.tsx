@@ -101,7 +101,7 @@ const ProductDashboard = () => {
     { header: 'Name', accessor: 'name', displayInList: true, sortable: true, className: 'min-w-[100px] px-6' },
     { header: 'Category', accessor: 'categoryName', displayInList: true, sortable: true, className: 'min-w-[100px] px-6' },
     { header: 'Brand', accessor: 'brandName', displayInList: true, sortable: true, className: 'min-w-[100px] px-6' },
-    { header: 'd Internal', accessor: 'colorName', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
+    { header: 'D Internal', accessor: 'colorName', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
     { header: 'D External', accessor: 'ramSize', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
     { header: 'B Width', accessor: 'storageSize', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
     { header: 'Base Price', accessor: 'basePrice', displayInList: true, sortable: false, className: 'min-w-[100px] px-6' },
