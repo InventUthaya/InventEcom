@@ -12,6 +12,7 @@ import Button from '../../components/ui/button/Button';
 import CommonService from '../../services/CommonService';
 import Loader from '../../components/common/loader/Loader';
 import { Package } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 
 interface PromoCodeFormData {
   id: number;
@@ -109,6 +110,18 @@ const PromoCodeForm = () => {
 
   const createPromo = async (data: PromoCodeFormData) => {
     try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("Token");
+      let partnerId: number | null = null;
+      if (token) {
+        try {
+          const decoded = jwtDecode<any>(token);
+          if (decoded && decoded.PartnerId) {
+            partnerId = Number(decoded.PartnerId);
+          }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
+      }
       const payload = {
         PromoID: 0,
         PromoCode: data.code,
@@ -121,6 +134,7 @@ const PromoCodeForm = () => {
         PerUserLimit: data.perUserLimit ? parseInt(data.perUserLimit) : null,
         UsedCount: 0,
         IsActive: active,
+        PartnerId: partnerId || null,
       };
       const res = await CommonService.post('bogo', 'CreateOrEditPromo', payload);
       if (res.status === HTTP_Codes.Success || res.status === HTTP_Codes.Created) {
@@ -141,6 +155,18 @@ const PromoCodeForm = () => {
 
   const updatePromo = async (id: string, data: PromoCodeFormData) => {
     try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("Token");
+      let partnerId: number | null = null;
+      if (token) {
+        try {
+          const decoded = jwtDecode<any>(token);
+          if (decoded && decoded.PartnerId) {
+            partnerId = Number(decoded.PartnerId);
+          }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
+      }
       const payload = {
         PromoID: parseInt(id),
         PromoCode: data.code,
@@ -153,6 +179,7 @@ const PromoCodeForm = () => {
         PerUserLimit: data.perUserLimit ? parseInt(data.perUserLimit) : null,
         UsedCount: data.usedCount,
         IsActive: active,
+        PartnerId: partnerId || null,
       };
       const res = await CommonService.post('bogo', 'CreateOrEditPromo', payload);
       if (res.status === HTTP_Codes.Success || res.status === HTTP_Codes.Created) {

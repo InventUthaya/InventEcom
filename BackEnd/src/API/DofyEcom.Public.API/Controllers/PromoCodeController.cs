@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DofyEcom.Contracts;
@@ -44,7 +44,7 @@ namespace DofyEcom.Public.API.Controllers
                     isActive = (bool)request.IsActive;
                 }
 
-                var (data, total) = await promoModel.GetPromoCodeListAsync(page, pageSize, searchText, sortColumn, sortOrder, isActive);
+                var (data, total) = await promoModel.GetPromoCodeListAsync(page, pageSize, searchText, sortColumn, sortOrder, isActive, request.PartnerId);
 
                 // project to UI shape and alias Id to PromoID
                 var payload = data.Select(d => new
@@ -118,7 +118,8 @@ namespace DofyEcom.Public.API.Controllers
                     PerUserLimit = req.PerUserLimit != null ? (int?)req.PerUserLimit : null,
                     UsedCount = req.UsedCount != null ? (int)req.UsedCount : 0,
                     IsActive = req.IsActive != null ? (bool)req.IsActive : true,
-                    Created = req.Created != null ? (System.DateTime)req.Created : System.DateTime.Now
+                    Created = req.Created != null ? (System.DateTime)req.Created : System.DateTime.Now,
+                    PartnerId = req.PartnerId
                 };
 
                 // optional sku list

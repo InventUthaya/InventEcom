@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DofyEcom.ViewEntities.ViewModel
@@ -17,6 +17,7 @@ namespace DofyEcom.ViewEntities.ViewModel
         public int UsedCount { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime? Created { get; set; }
+        public int? PartnerId { get; set; }
 
         //public List<int> SkuIds { get; set; } = new();
     }

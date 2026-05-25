@@ -1,4 +1,4 @@
-﻿using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace DofyEcom.ViewEntities.SearchCriteria
 {
@@ -12,5 +12,6 @@ namespace DofyEcom.ViewEntities.SearchCriteria
         public string? SearchText { get; set; }
         public string sortColumn { get; set; } = "Created";
         public string sortOrder { get; set; } = "DESC";
+        public int? PartnerId { get; set; }
     }
 }

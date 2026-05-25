@@ -12,6 +12,7 @@ import DataTable, { Column } from '../../components/common/DataTable';
 import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModel';
 import CustomSearchDropdown from '../../components/common/CustomSearchDropdown';
 import Pagination from '../CustomComponent/Pagination'; // Added import
+import { jwtDecode } from 'jwt-decode';
 
 interface ApiPromo {
   PromoID: number;
@@ -107,12 +108,26 @@ const PromoCodeDashboard = () => {
     setIsLoading(true);
     const f = typeof filterValue !== 'undefined' ? filterValue : filter;
 
+    const token = localStorage.getItem("token") || sessionStorage.getItem("Token");
+    let partnerId: number | null = null;
+    if (token) {
+      try {
+        const decoded = jwtDecode<any>(token);
+        if (decoded && decoded.PartnerId) {
+          partnerId = Number(decoded.PartnerId);
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+
     const requestData: any = {
       pageSize: size,
       pageIndex: page - 1,
       searchText: search || undefined,
       sortOrder: sortOrder.toUpperCase(),
       sortColumn: sortColumn || 'Created',
+      PartnerId: partnerId || null,
     };
 
     if (f === 'active') requestData.IsActive = true;

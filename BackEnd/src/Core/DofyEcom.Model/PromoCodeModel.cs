@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.Model
+namespace DofyEcom.Model
 {
     using System.Data;
     using System.Data.SqlClient;
@@ -33,7 +33,7 @@
         public async Task<(IEnumerable<PromoCode> Data, int TotalCount)>
             GetPromoCodeListAsync(int page = 1, int pageSize = 20,
             string searchText = null, string sortColumn = "Created",
-            string sortOrder = "DESC", bool? isActive = null)
+            string sortOrder = "DESC", bool? isActive = null, int? partnerId = null)
         {
             try
             {
@@ -46,6 +46,7 @@
                     p.Add("@SortColumn", sortColumn);
                     p.Add("@SortOrder", sortOrder);
                     p.Add("@IsActive", isActive);
+                    p.Add("@PartnerId", partnerId);
 
                     await conn.OpenAsync();
 
@@ -106,6 +107,7 @@
                     p.Add("@PerUserLimit", promo.PerUserLimit);
                     p.Add("@UsedCount", promo.UsedCount);
                     p.Add("@IsActive", promo.IsActive);
+                    p.Add("@PartnerId", promo.PartnerId);
 
                     await conn.OpenAsync();
 
