@@ -290,26 +290,10 @@ const DesktopTrackOrder = ({ trackOrder }: { trackOrder: any[] }) => {
     ];
 
     if (orderStatusId === 3) {
-      const lastReachedStep =
-        steps.find(step => step.statusId === 2) ? steps.find(step => step.statusId === 2)
-          : steps.find(step => step.statusId === 1);
-
-      const completedSteps = steps.map(step => ({
-        ...step,
-        status: step.statusId <= (lastReachedStep?.statusId || 1),
-        date: step.statusId <= (lastReachedStep?.statusId || 1) ? step.date : ""
-      }));
-
       return [
-        ...completedSteps,
-        {
-          // title: `Cancelled after ${lastReachedStep?.title}`,
-          title: `Cancelled`,
-          date: formattedUpdatedOrderDate,
-          status: true,
-          statusId: 3,
-          isCancelled: true
-        }
+        { title: "Pending", statusId: 1, date: formattedOrderDate, status: true },
+        { title: "Order Confirmed", statusId: 2, date: formattedOrderDate, status: true },
+        { title: "Cancelled", statusId: 3, date: formattedUpdatedOrderDate, status: true, isCancelled: true }
       ];
     }
     const currentStepIndex = steps.findIndex(
@@ -398,7 +382,7 @@ const DesktopTrackOrder = ({ trackOrder }: { trackOrder: any[] }) => {
                 {(item.OrderStatusId === 1 || item.OrderStatusId === 2) && (
                   <button
                     onClick={() => DeleteHandler(item)}
-                    className="w-1/2 py-2 border text-red-600 rounded-md text-sm"
+                    className="py-[10px] px-[14px] border text-red-600 rounded-md text-sm"
                   >
                     Cancel
                   </button>
@@ -533,7 +517,11 @@ const MobileTackOrder = ({ trackOrder }: { trackOrder: any[] }) => {
     ];
 
     if (orderStatusId === 3) {
-      return [{ title: "Cancelled", date: formattedUpdatedOrderDate, status: true, statusId: 3 }];
+      return [
+        { title: "Pending", date: formattedOrderDate, status: true, statusId: 1 },
+        { title: "Order Confirmed", date: formattedOrderDate, status: true, statusId: 2 },
+        { title: "Cancelled", date: formattedUpdatedOrderDate, status: true, statusId: 3 }
+      ];
     }
     if (orderStatusId === 5) {
       return [{ title: "Rejected", date: formattedUpdatedOrderDate, status: true, statusId: 5 }];
@@ -601,7 +589,7 @@ const MobileTackOrder = ({ trackOrder }: { trackOrder: any[] }) => {
                 {(item.OrderStatusId === 1 || item.OrderStatusId === 2) && (
                   <button
                     onClick={() => DeleteHandler(item)}
-                    className="w-1/2 py-2 border text-red-600 rounded-md text-sm"
+                    className="py-[10px] px-[14px] border text-red-600 rounded-md text-sm"
                   >
                     Cancel
                   </button>

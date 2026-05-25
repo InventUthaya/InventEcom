@@ -65,7 +65,12 @@ export default function PaymentDetails() {
         }
         const decoded = jwtDecode(token) as CustomJwtPayload;
 
-        const partnerId = Number(decoded.PartnerId);
+        let partnerId: number | null = null;
+        if (decoded.PartnerId) {
+            partnerId = Number(decoded.PartnerId);
+        } else if (id && id !== 'null' && id !== 'undefined') {
+            partnerId = Number(id);
+        }
 
         const data = {
             Search: search,
@@ -99,7 +104,13 @@ export default function PaymentDetails() {
         }
         const decoded = jwtDecode(token) as CustomJwtPayload;
 
-        const partnerId = Number(decoded.PartnerId);
+        let partnerId: number | null = null;
+        if (decoded.PartnerId) {
+            partnerId = Number(decoded.PartnerId);
+        } else if (id && id !== 'null' && id !== 'undefined') {
+            partnerId = Number(id);
+        }
+        
         const data = {
             PartnerId: partnerId
         };
@@ -335,12 +346,14 @@ export default function PaymentDetails() {
                                                 <td className="px-6 py-4 text-sm">{data.TaxPercentage}%</td>
                                                 <td className="px-6 py-4 text-sm">₹{data.ProductTaxTotal}</td>
                                                 <td className="px-6 py-4 text-sm">₹{data.ProductTotal}</td>
-                                                <td className="px-6 py-4 text-sm font-medium text-green-600">₹{data.CommissionAmount}</td>
-                                                <td className="px-6 py-4 text-sm">{data.CommissionPercentage}%</td>
+                                                <td className="px-6 py-4 text-sm font-medium text-green-600">{(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? '-' : `₹${data.CommissionAmount}`}</td>
+                                                <td className="px-6 py-4 text-sm">{(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? '-' : `${data.CommissionPercentage}%`}</td>
                                                 <td className="px-6 py-4 text-sm">#{data.OrderNumber}</td>
-                                                <td className="px-6 py-4 text-sm">₹{data.PartnerAmount}</td>
+                                                <td className="px-6 py-4 text-sm">{(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? '-' : `₹${data.PartnerAmount}`}</td>
                                                 <td className="px-6 py-4 text-sm">
-                                                    {(() => {
+                                                    {(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? (
+                                                        <span className="text-gray-500">-</span>
+                                                    ) : (() => {
                                                         const status = getPaymentStatusText(data.paymentDone);
                                                         return (
                                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.textColor} ${status.bgColor}`}>

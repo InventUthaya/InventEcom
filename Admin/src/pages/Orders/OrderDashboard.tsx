@@ -278,7 +278,7 @@ const OrderDashboard = () => {
                     Orderdate: o.Orderdate || '',
                     StatusName: o.StatusName || '',
                     NetPayable: parseFloat(o.NetPayable) || 0,
-                    paymentMethod: 'Cash',
+                    paymentMethod: o.PaymentMethod || 'Cash',
                     shipment: 'via Standard Shipping',
                 }));
 
@@ -472,7 +472,7 @@ const OrderDashboard = () => {
                 Orderdate: o.Orderdate || '',
                 StatusName: o.StatusName || '',
                 NetPayable: parseFloat(o.NetPayable) || 0,
-                paymentMethod: 'Cash',
+                paymentMethod: o.PaymentMethod || 'Cash',
                 shipment: 'via Standard Shipping',
             }));
 

@@ -216,6 +216,7 @@ const OrdersCard = (item: any) => {
     if (orderStatusId === 3) {
       return [
         { title: "Pending", date: formattedOrderDate, status: true, statusId: 1 },
+        { title: "Order Confirmed", date: formattedOrderDate, status: true, statusId: 2 },
         { title: "Cancelled", date: formattedUpdatedOrderDate, status: true, statusId: 3 },
       ];
     }

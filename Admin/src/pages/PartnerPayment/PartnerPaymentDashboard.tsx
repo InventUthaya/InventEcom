@@ -353,16 +353,18 @@ export default function PaymentDashboard() {
                                                 <td className="px-6 py-4 text-sm">{data.TaxPercentage}%</td>
                                                 <td className="px-6 py-4 text-sm">₹{data.ProductTaxTotal}</td>
                                                 <td className="px-6 py-4 text-sm">₹{data.ProductTotal}</td>
-                                                <td className="px-6 py-4 text-sm">{data.AvgCommissionPercentage}%</td>
-                                                <td className="px-6 py-4 text-sm">₹{data.TotalCommission}</td>
+                                                <td className="px-6 py-4 text-sm">{(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? '-' : `${data.AvgCommissionPercentage}%`}</td>
+                                                <td className="px-6 py-4 text-sm">{(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? '-' : `₹${data.TotalCommission}`}</td>
                                                 <td className="px-6 py-4 text-sm font-medium">
                                                     {data.CompletedOrders}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">{data.PendingOrders}</td>
-                                                <td className="px-6 py-4 text-sm">₹{data.PartnerAmount}</td>
+                                                <td className="px-6 py-4 text-sm">{(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? '-' : `₹${data.PartnerAmount}`}</td>
 
                                                 <td className="px-6 py-4 text-sm">
-                                                    {(() => {
+                                                    {(!data.PartnerId || String(data.PartnerName).includes('Admin')) ? (
+                                                        <span className="text-gray-500">-</span>
+                                                    ) : (() => {
                                                         const status = getPaymentStatusText(data.PaymentDoneStatus);
                                                         return (
                                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.textColor} ${status.bgColor}`}>

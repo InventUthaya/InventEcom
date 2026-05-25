@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.ViewEntities
+namespace DofyEcom.ViewEntities
 {
     public class OrderResponseModel
     {
@@ -37,5 +37,7 @@
         public int Quantity { get; set; }
 
         public int TotalCount { get; set; }
+
+        public string PaymentMethod { get; set; }
     }
 }
