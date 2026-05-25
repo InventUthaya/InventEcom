@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import CommonService from '../../../services/CommonService';
 import Pagination from '../../CustomComponent/Pagination';
 import { Pencil, Plus, X } from 'lucide-react';
+import useDebounce from '../../../hooks/useDebounce';
 
 interface Menu {
     Id: number;
@@ -38,6 +39,7 @@ const SubCategoryDashboard = () => {
     const [categorySearch, setCategorySearch] = useState('');
 
     const pageSize = 10;
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     const [showModal, setShowModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
@@ -60,11 +62,11 @@ const SubCategoryDashboard = () => {
         if (res.status === 200 && Array.isArray(res.data)) setSubcategory(res.data);
     };
 
-    const fetchSubCategory = async (page = 1) => {
+    const fetchSubCategory = async (page = 1, search = '') => {
         setIsLoading(true);
         try {
             const res = await CommonService.post('itemssubcategory', 'GetList', {
-                SearchText: '',
+                SearchText: search,
                 OffsetStart: (page - 1) * pageSize + 1,
                 RowsPerPage: pageSize,
             });
@@ -72,6 +74,9 @@ const SubCategoryDashboard = () => {
             if (res.status === 200 && Array.isArray(res.data)) {
                 setItemSubcategory(res.data);
                 setTotalOrdersCount(res.data[0]?.TotalCount || 0);
+            } else {
+                setItemSubcategory([]);
+                setTotalOrdersCount(0);
             }
         } finally {
             setIsLoading(false);
@@ -81,8 +86,11 @@ const SubCategoryDashboard = () => {
     useEffect(() => {
         fetchMenu();
         fetchCategory();
-        fetchSubCategory(currentPage);
-    }, [currentPage]);
+    }, []);
+
+    useEffect(() => {
+        fetchSubCategory(currentPage, debouncedSearch);
+    }, [currentPage, debouncedSearch]);
 
     const filteredCategories = useMemo(() => {
         return subcategory.filter(s =>
@@ -91,12 +99,21 @@ const SubCategoryDashboard = () => {
     }, [subcategory, categorySearch]);
 
     const filteredMenu = useMemo(() => {
-        return itemSubCategory.filter(
-            (o) =>
-                o.ItemsCategoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                o.Description.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [itemSubCategory, searchTerm]);
+        return itemSubCategory.filter((o) => {
+            const matchesSearch = o.ItemsCategoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                  (o.Description && o.Description.toLowerCase().includes(searchTerm.toLowerCase()));
+            
+            const cat = subcategory.find(s => s.Id === o.SubCategoryMasterId);
+            const categoryName = cat ? cat.SubCategoryName : '';
+            const matchesCategory = categoryName.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const m = cat ? menu.find(x => x.Id === cat.CategoryMasterId) : null;
+            const menuName = m ? m.CategoryName : '';
+            const matchesMenu = menuName.toLowerCase().includes(searchTerm.toLowerCase());
+
+            return matchesSearch || matchesCategory || matchesMenu;
+        });
+    }, [itemSubCategory, searchTerm, subcategory, menu]);
 
     const openCreateModal = () => {
         setIsEdit(false);
@@ -158,7 +175,10 @@ const SubCategoryDashboard = () => {
                         placeholder="Search..."
                         className="border rounded-md px-3 py-1 text-sm"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setCurrentPage(1);
+                        }}
                     />
 
                     <button

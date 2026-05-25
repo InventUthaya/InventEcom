@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import CommonService from '../../../services/CommonService';
 import Pagination from '../../CustomComponent/Pagination';
 import { Pencil, Plus, X } from 'lucide-react';
+import useDebounce from '../../../hooks/useDebounce';
 
 interface Menu {
     Id: number;
@@ -28,6 +29,7 @@ const CategoryDashboard = () => {
     const [menuSearch, setMenuSearch] = useState('');
 
     const pageSize = 10;
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     const [showModal, setShowModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
@@ -53,11 +55,11 @@ const CategoryDashboard = () => {
         }
     };
 
-    const fetchCategory = async (page = 1) => {
+    const fetchCategory = async (page = 1, search = '') => {
         setIsLoading(true);
         try {
             const res = await CommonService.post('Subcategory', 'GetList', {
-                SearchText: '',
+                SearchText: search,
                 OffsetStart: (page - 1) * pageSize + 1,
                 RowsPerPage: pageSize,
             });
@@ -65,6 +67,9 @@ const CategoryDashboard = () => {
             if (res.status === 200 && Array.isArray(res.data)) {
                 setSubcategory(res.data);
                 setTotalOrdersCount(res.data[0]?.TotalCount || 0);
+            } else {
+                setSubcategory([]);
+                setTotalOrdersCount(0);
             }
         } finally {
             setIsLoading(false);
@@ -73,16 +78,24 @@ const CategoryDashboard = () => {
 
     useEffect(() => {
         fetchMenu();
-        fetchCategory(currentPage);
-    }, [currentPage]);
+    }, []);
+
+    useEffect(() => {
+        fetchCategory(currentPage, debouncedSearch);
+    }, [currentPage, debouncedSearch]);
 
     const filteredMenu = useMemo(() => {
-        return subcategory.filter(
-            (o) =>
-                o.SubCategoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                o.Description.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [subcategory, searchTerm]);
+        return subcategory.filter((o) => {
+            const matchesSearch = o.SubCategoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                  (o.Description && o.Description.toLowerCase().includes(searchTerm.toLowerCase()));
+            
+            const m = menu.find(x => x.Id === o.CategoryMasterId);
+            const menuName = m ? m.CategoryName : '';
+            const matchesMenu = menuName.toLowerCase().includes(searchTerm.toLowerCase());
+
+            return matchesSearch || matchesMenu;
+        });
+    }, [subcategory, searchTerm, menu]);
 
     const openCreateModal = () => {
         setIsEdit(false);
@@ -142,7 +155,10 @@ const CategoryDashboard = () => {
                         placeholder="Search..."
                         className="border rounded-md px-3 py-1 text-sm"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setCurrentPage(1);
+                        }}
                     />
 
                     <button
