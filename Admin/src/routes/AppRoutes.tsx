@@ -25,6 +25,7 @@ import PaymentDetails from "../pages/PartnerPayment/PaymentDetails";
 import MenuDashBoard from "../pages/Masters/Menu/MenuDashboard";
 import CategoryDashboard from "../pages/Masters/Category/CategoryDashboard";
 import SubCategoryDashboard from "../pages/Masters/SubCategory/SubCategoryDashboard";
+import BrandDashboard from "../pages/Masters/Brand/BrandDashboard";
 
 export const publicRoutes = [
   { path: "/signin", component: SignIn },
@@ -59,5 +60,6 @@ export const componentMap: { [key: string]: React.ComponentType<any> } = {
   "/paymentdetail":PaymentDetails,
   "/menu":MenuDashBoard,
   "/category":CategoryDashboard,
-  "/subcategory":SubCategoryDashboard
+  "/subcategory":SubCategoryDashboard,
+  "/brand":BrandDashboard
 };

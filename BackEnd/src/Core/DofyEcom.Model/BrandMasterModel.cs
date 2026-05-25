@@ -5,25 +5,24 @@ using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using AutoMapper;
+using Dapper;
 using DataTables.AspNet.Core;
 using DofyEcom.Contracts;
-using DofyEcom.DataMappers.EntityMappers;
-using DofyEcom.DataMappers.ModelMappers;
 using DofyEcom.Helper;
 using DofyEcom.ViewEntities;
+using DofyEcom.ViewEntities.SearchCriteria;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using DofyEcom.UploadHelper;
 
 namespace DofyEcom.Model
 {
-    public class BrandMasterModel : BaseModel<DBO.BrandMaster>
+    public class BrandMasterModel : BaseModel<DBO.BrandMaster>, IBrandMasterModel
     {
         private readonly IOptionsSnapshot<AppConfiguration> config;
         private readonly IMapper mapper;
         private readonly IPrincipal iPrincipal;
         private readonly CountryContext context;
-        private readonly BrandMasterEntityMapper entityMapper;
-        private readonly BrandMasterModelMapper modelMapper;
 
         public BrandMasterModel(
             IOptionsSnapshot<AppConfiguration> iConfig,
@@ -53,10 +52,16 @@ namespace DofyEcom.Model
             return default;
         }
 
-        public IEnumerable<DBO.BrandMaster> GetList()
+        public IEnumerable<ViewEntities.BrandMaster> GetList()
         {
-            var results = this.FindItems(item => item.IsActive == true);
-            return results;
+            var result = this.GetAllItems();
+            if (result is not null)
+            {
+                var filteredResult = result.Where(item => item.IsActive == true);
+                var mapperResult = filteredResult.Select(brand => this.mapper.Map<DBO.BrandMaster, ViewEntities.BrandMaster>(brand));
+                return mapperResult;
+            }
+            return Enumerable.Empty<ViewEntities.BrandMaster>();
         }
 
         public IEnumerable<ViewEntities.BrandMaster> GetActiveBrandForDropdown()
@@ -69,7 +74,7 @@ namespace DofyEcom.Model
                 var viewEntities = new List<ViewEntities.BrandMaster>();
                 foreach (var result in results)
                 {
-                    viewEntities.Add(entityMapper.Convert(result, new ViewEntities.BrandMaster(), null));
+                    viewEntities.Add(this.mapper.Map<DBO.BrandMaster, ViewEntities.BrandMaster>(result));
                 }
                 return viewEntities;
             }
@@ -78,11 +83,13 @@ namespace DofyEcom.Model
 
         public long Post(ViewEntities.BrandMaster item, IFormFileCollection postedFileCollection)
         {
-            var dboItem = modelMapper.Convert(item, new DBO.BrandMaster(), null);
+            var dboItem = this.mapper.Map<ViewEntities.BrandMaster, DBO.BrandMaster>(item);
             dboItem.Created = DateTime.Now;
             dboItem.CreatedBy = iPrincipal?.Identity?.Name ?? "System";
             dboItem.IsActive = true;
             dboItem.DisplayInList = true;
+
+            SaveBrandImage(item, dboItem);
 
             this.AddItem(dboItem);
             return dboItem.Id;
@@ -90,11 +97,13 @@ namespace DofyEcom.Model
 
         public long Post(ViewEntities.BrandMaster item)
         {
-            var dboItem = modelMapper.Convert(item, new DBO.BrandMaster(), null);
+            var dboItem = this.mapper.Map<ViewEntities.BrandMaster, DBO.BrandMaster>(item);
             dboItem.Created = DateTime.Now;
             dboItem.CreatedBy = iPrincipal?.Identity?.Name ?? "System";
             dboItem.IsActive = true;
             dboItem.DisplayInList = true;
+
+            SaveBrandImage(item, dboItem);
 
             this.AddItem(dboItem);
             return dboItem.Id;
@@ -102,9 +111,11 @@ namespace DofyEcom.Model
 
         public long Put(ViewEntities.BrandMaster item, IFormFileCollection postedFileCollection)
         {
-            var dboItem = modelMapper.Convert(item, new DBO.BrandMaster(), null);
+            var dboItem = this.mapper.Map<ViewEntities.BrandMaster, DBO.BrandMaster>(item);
             dboItem.Modified = DateTime.Now;
             dboItem.ModifiedBy = iPrincipal?.Identity?.Name ?? "System";
+
+            SaveBrandImage(item, dboItem);
 
             this.UpdateItem(dboItem);
             return item.Id;
@@ -112,12 +123,70 @@ namespace DofyEcom.Model
 
         public long Put(ViewEntities.BrandMaster item)
         {
-            var dboItem = modelMapper.Convert(item, new DBO.BrandMaster(), null);
+            var dboItem = this.mapper.Map<ViewEntities.BrandMaster, DBO.BrandMaster>(item);
             dboItem.Modified = DateTime.Now;
             dboItem.ModifiedBy = iPrincipal?.Identity?.Name ?? "System";
+            dboItem.IsActive = item.IsActive;
+            dboItem.DisplayInList = item.DisplayInList;
+
+            SaveBrandImage(item, dboItem);
 
             this.UpdateItem(dboItem);
             return item.Id;
+        }
+
+        private void SaveBrandImage(ViewEntities.BrandMaster item, DBO.BrandMaster dboItem)
+        {
+            if (!string.IsNullOrEmpty(item.ImageBase64))
+            {
+                try
+                {
+                    string base64Data = item.ImageBase64.Contains(",") ? item.ImageBase64.Split(',')[1] : item.ImageBase64;
+                    byte[] imageBytes = Convert.FromBase64String(base64Data);
+                    
+                    string fileName = !string.IsNullOrEmpty(item.ImagePath) 
+                        ? System.IO.Path.GetFileName(item.ImagePath) 
+                        : $"{Guid.NewGuid()}.png";
+                    
+                    // Clean invalid filename characters
+                    foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                    {
+                        fileName = fileName.Replace(c, '_');
+                    }
+                    
+                    string baseFolder = "brands";
+                    string relativePath = $"{baseFolder}/{fileName}";
+                    
+                    if (this.config?.Value.AWSConfiguration?.EnableS3 == true)
+                    {
+                        using (var stream = new System.IO.MemoryStream(imageBytes))
+                        {
+                            new S3ClientHelperService(this.config, this.GetS3FolderName(this.context.CountryCode))
+                                .FileUploadAsync(stream, relativePath).Wait();
+                        }
+                    }
+                    else
+                    {
+                        string localPath = System.IO.Path.Combine(this.config.Value.ApplicationConfiguration.AttachmentFilePath, baseFolder);
+                        if (!System.IO.Directory.Exists(localPath))
+                        {
+                            System.IO.Directory.CreateDirectory(localPath);
+                        }
+                        string fileFullPath = System.IO.Path.Combine(localPath, fileName);
+                        System.IO.File.WriteAllBytes(fileFullPath, imageBytes);
+                    }
+                    
+                    dboItem.ImagePath = relativePath;
+                }
+                catch (Exception ex)
+                {
+                    throw new ApplicationException($"Failed to save brand image: {ex.Message}");
+                }
+            }
+            else
+            {
+                dboItem.ImagePath = item.ImagePath;
+            }
         }
 
         public bool Remove(long id)
@@ -139,6 +208,18 @@ namespace DofyEcom.Model
         {
             var brand = this.Get((int)brandId);
             return brand?.BrandName ?? "Unknown Brand";
+        }
+
+        public async Task<IEnumerable<BrandMasterResponse>> GetAll(BrandMasterSearch request)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@SearchText", request.SearchText);
+            parameters.Add("@OffsetStart", request.OffsetStart);
+            parameters.Add("@RowsPerPage", request.RowsPerPage);
+
+            var result = await this.ExecStoredProcedureAsync<BrandMasterResponse>("SP_GetBrandMaster", parameters);
+
+            return result;
         }
     }
 }

@@ -21,7 +21,8 @@ namespace DofyEcom.DataMappers.ModelMappers
                 CreatedBy = source.CreatedBy,
                 Modified = source.Modified,
                 ModifiedBy = source.ModifiedBy,
-                PartnerId = source?.PartnerId ?? null
+                PartnerId = source?.PartnerId ?? null,
+                ImagePath = source.ImagePath
             };
         }
     }

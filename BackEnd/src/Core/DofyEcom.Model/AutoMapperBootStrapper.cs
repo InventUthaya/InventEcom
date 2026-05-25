@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.Model;
+namespace DofyEcom.Model;
 
 using AutoMapper;
 using DofyEcom.DataMappers;
@@ -49,7 +49,7 @@ public class AutoMapperBootStrapper : Profile
         this.CreateMap<DBO.PartnerMaster, ViewEntities.PartnerMaster>().ConvertUsing(new PartnerMasterEntityMapper());
         this.CreateMap<DBO.CommissionSlab, ViewEntities.CommissionSlab>().ConvertUsing(new CommissionSlabEntityMapper());
         this.CreateMap<DBO.CommissionSlabDetails, ViewEntities.CommissionSlabDetails>().ConvertUsing(new CommissionSlabDetailsEntityMapper());
-
+        this.CreateMap<DBO.BrandMaster, ViewEntities.BrandMaster>().ConvertUsing(new BrandMasterEntityMapper());
 
         //Model Mappers
         this.CreateMap<ViewEntities.ProductMaster, DBO.ProductMaster>().ConvertUsing(new ProductMasterModelMapper());
@@ -90,5 +90,6 @@ public class AutoMapperBootStrapper : Profile
         this.CreateMap<ViewEntities.PartnerMaster, DBO.PartnerMaster>().ConvertUsing(new PartnerMasterModelMapper());
         this.CreateMap<ViewEntities.CommissionSlab, DBO.CommissionSlab>().ConvertUsing(new CommissionSlabModelMapper());
         this.CreateMap<ViewEntities.CommissionSlabDetails, DBO.CommissionSlabDetails>().ConvertUsing(new CommissionSlabDetailsModelMapper());
+        this.CreateMap<ViewEntities.BrandMaster, DBO.BrandMaster>().ConvertUsing(new BrandMasterModelMapper());
     }
 }

@@ -19,7 +19,8 @@ namespace DofyEcom.DataMappers.EntityMappers
                 Created = source.Created,
                 CreatedBy = source.CreatedBy,
                 Modified = source.Modified,
-                ModifiedBy = source.ModifiedBy
+                ModifiedBy = source.ModifiedBy,
+                ImagePath = source.ImagePath
             };
         }
     }

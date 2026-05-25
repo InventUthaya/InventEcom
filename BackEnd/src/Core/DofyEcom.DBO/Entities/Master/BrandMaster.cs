@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.DBO
+namespace DofyEcom.DBO
 {
     public class BrandMaster : EntityBase
     {
@@ -7,5 +7,6 @@
         public bool IsActive { get; set; }
         public bool DisplayInList { get; set; }
         public int? PartnerId { get; set; }
+        public string ImagePath { get; set; }
     }
 }

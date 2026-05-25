@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.ViewEntities
+namespace DofyEcom.ViewEntities
 {
     public class BrandMaster : EntityBase
     {
@@ -7,5 +7,7 @@
         public bool IsActive { get; set; }
         public bool DisplayInList { get; set; }
         public int? PartnerId { get; set; }
+        public string ImagePath { get; set; }
+        public string ImageBase64 { get; set; }
     }
 }

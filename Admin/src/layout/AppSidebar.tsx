@@ -223,7 +223,7 @@ const AppSidebar: React.FC = () => {
   // }, [dynamicMenuItems]);
 
   useEffect(() => {
-    const masterPaths = ["/menu", "/category", "/subcategory"];
+    const masterPaths = ["/menu", "/category", "/subcategory", "/brand"];
 
     const mastersSubItems = dynamicMenuItems
       .filter(item => masterPaths.includes(item.path))
