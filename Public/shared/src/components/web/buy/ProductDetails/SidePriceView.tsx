@@ -159,7 +159,7 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
           "cartItem",
           JSON.stringify({
             EncryptCustomerId: null,
-            EncryptProductId: productdetailId?.toString() ?? "",
+            EncryptProductId: selectedVariant.SkuID.toString(),
             storeId: 1,
             quantity: 1,
             shoppingCartTypeId: 1,
@@ -171,7 +171,15 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
         success = true;
       }
       if (success) {
-        navigate.push(`/buy/checkout`);
+        if (userId > 0) {
+          navigate.push(`/buy/checkout`);
+        } else {
+          setShowLogin(true);
+          setOpenLoginWitSelectedProduct({
+            handler: "login",
+            isOpen: true,
+          });
+        }
       } else {
         setError("Failed to add to cart. Please try again.");
       }
@@ -205,7 +213,7 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
           "cartItem",
           JSON.stringify({
             EncryptCustomerId: null,
-            EncryptProductId: productdetailId?.toString() ?? "",
+            EncryptProductId: selectedVariant.SkuID.toString(),
             storeId: 1,
             quantity: 1,
             shoppingCartTypeId: 1,
@@ -214,7 +222,11 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
             customerEnteredPrice: selectedVariant.SellingPrice,
           })
         );
-        navigate.push("/cart");
+        setShowLogin(true);
+        setOpenLoginWitSelectedProduct({
+          handler: "login",
+          isOpen: true,
+        });
       }
     } catch (e) {
       console.error(e);
