@@ -317,7 +317,6 @@ const UserCreate = () => {
     initializeData();
   }, [id]);
 
-  // Sync Email & Phone from main form to Partner form
   useEffect(() => {
     if (isPartner) {
       setPartnerData((prev) => ({
@@ -348,9 +347,58 @@ const UserCreate = () => {
       ...prev,
       [section]: { ...prev[section], [field]: value },
     }));
-    // Clear field error on change
     const key = `${section}.${field}`;
     setFieldErrors((prev) => { const next = { ...prev }; delete next[key]; return next; });
+  };
+
+  const handleEmailBlur = async () => {
+    const email = formData.UserLogin.Email;
+    
+    if (!email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFieldErrors((prev) => ({ ...prev, 'UserLogin.Email': 'Valid email is required' }));
+      setDuplicateErrors((prev) => { const n = { ...prev }; delete n.email; return n; });
+      return;
+    }
+    
+    setFieldErrors((prev) => { const next = { ...prev }; delete next['UserLogin.Email']; return next; });
+    
+    const excludeId = isEditMode ? parseInt(id!) : undefined;
+    try {
+      const emailParams = `email=${encodeURIComponent(email)}${excludeId ? `&excludeUserId=${excludeId}` : ''}`;
+      const emailRes = await CommonService.get('User', `check-duplicate?${emailParams}`, 'noParam');
+      if (emailRes.data?.emailExists) {
+        setDuplicateErrors((prev) => ({ ...prev, email: 'This email is already registered' }));
+      } else {
+        setDuplicateErrors((prev) => { const n = { ...prev }; delete n.email; return n; });
+      }
+    } catch (err) {
+      console.error('Email duplicate check failed', err);
+    }
+  };
+
+  const handlePhoneBlur = async () => {
+    const phone = formData.UserLogin.Phone;
+    
+    if (!phone?.trim() || !/^\+?[1-9]\d{1,14}$/.test(phone)) {
+      setFieldErrors((prev) => ({ ...prev, 'UserLogin.Phone': 'Valid phone number is required' }));
+      setDuplicateErrors((prev) => { const n = { ...prev }; delete n.phone; return n; });
+      return;
+    }
+    
+    setFieldErrors((prev) => { const next = { ...prev }; delete next['UserLogin.Phone']; return next; });
+    
+    const excludeId = isEditMode ? parseInt(id!) : undefined;
+    try {
+      const phoneParams = `phone=${encodeURIComponent(phone)}${excludeId ? `&excludeUserId=${excludeId}` : ''}`;
+      const phoneRes = await CommonService.get('User', `check-duplicate?${phoneParams}`, 'noParam');
+      if (phoneRes.data?.phoneExists) {
+        setDuplicateErrors((prev) => ({ ...prev, phone: 'This phone number is already registered' }));
+      } else {
+        setDuplicateErrors((prev) => { const n = { ...prev }; delete n.phone; return n; });
+      }
+    } catch (err) {
+      console.error('Phone duplicate check failed', err);
+    }
   };
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: string, index = 0) => {
@@ -360,7 +408,6 @@ const UserCreate = () => {
       updatedAddresses[index] = { ...updatedAddresses[index], [field]: value };
       return { ...prev, UserAddresses: updatedAddresses };
     });
-    // Clear field error on change
     const key = `Address[${index}].${field}`;
     setFieldErrors((prev) => { const next = { ...prev }; delete next[key]; return next; });
   };
@@ -785,6 +832,7 @@ const UserCreate = () => {
                       type="email"
                       value={formData.UserLogin.Email}
                       onChange={(e) => { handleInputChange(e, 'UserLogin', 'Email'); setDuplicateErrors((prev) => { const n = { ...prev }; delete n.email; return n; }); }}
+                      onBlur={handleEmailBlur}
                       className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors['UserLogin.Email'] || duplicateErrors.email ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                       placeholder="Enter email"
                     />
@@ -800,6 +848,7 @@ const UserCreate = () => {
                       type="text"
                       value={formData.UserLogin.Phone}
                       onChange={(e) => { handleInputChange(e, 'UserLogin', 'Phone'); setDuplicateErrors((prev) => { const n = { ...prev }; delete n.phone; return n; }); }}
+                      onBlur={handlePhoneBlur}
                       className={`w-full px-3 py-2 text-sm sm:text-base border rounded-md focus:outline-none focus:ring-2 ${fieldErrors['UserLogin.Phone'] || duplicateErrors.phone ? 'border-red-500 focus:ring-red-400 bg-red-50' : 'border-gray-300 focus:ring-blue-500'}`}
                       placeholder="Enter phone number (e.g., +1234567890)"
                     />
