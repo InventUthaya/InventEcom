@@ -103,7 +103,7 @@ namespace DofyEcom.Model
 
         public async Task<ViewEntities.UserLogin> AuthenticateUser(string email, string password)
         {
-            var validUser = this.FindItem(item => item.Email.ToLower() == email.ToLower() && item.IsActive == true);
+            var validUser = this.FindItem(item => (item.Email.ToLower() == email.ToLower() || item.Phone.ToLower() == email.ToLower()) && item.IsActive == true);
 
             if (validUser == null)
             {
