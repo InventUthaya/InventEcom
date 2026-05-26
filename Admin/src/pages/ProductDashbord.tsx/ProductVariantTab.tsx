@@ -538,7 +538,7 @@ const ProductVariantTab: React.FC<ProductVariantTabProps> = ({
               </div>
 
               {variant.colorId && variantImages.length === 0 && (
-                <p className="text-orange-600 text-sm mt-4">No images uploaded for this color yet.</p>
+                <p className="text-orange-600 text-sm mt-4"></p>
               )}
             </div>
           );

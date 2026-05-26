@@ -419,7 +419,7 @@ namespace DofyEcom.Model
             var html = invoiceData.Result.Template;
 
             // Dates
-            html = html.Replace("{invoicedate}", DateTime.UtcNow.ToString("dd MMM yyyy"));
+            html = html.Replace("{invoicedate}", orderHeader.OrderDate.ToString("dd MMM yyyy"));
             html = html.Replace("{orderdate}", orderHeader.OrderDate.ToString("dd MMM yyyy"));
 
             // Basic Info

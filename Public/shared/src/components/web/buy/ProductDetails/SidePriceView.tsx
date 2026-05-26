@@ -1,4 +1,5 @@
 import { DiscountTag, ShareIcon } from "./assets";
+import { Store } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { LoginModalHandler, ShowLoginPage } from "../../../../recoil/userAuth";
@@ -430,6 +431,15 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
               )}
             </div>
           </div>
+
+          {productData.PartnerCompanyName && (
+            <div className="flex items-center gap-1.5 mb-3">
+              <Store size={14} className="text-gray-400 flex-shrink-0" />
+              <span className="text-sm text-gray-500 truncate">
+                {productData.PartnerCompanyName}
+              </span>
+            </div>
+          )}
 
         </div>
       ) : (
@@ -999,6 +1009,16 @@ export const MobileCartView: React.FC<DesktopCartViewProps> = ({
               </div>
             )}
           </div>
+
+          {productData.PartnerCompanyName && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <Store size={13} className="text-gray-400 flex-shrink-0" />
+              <span className="text-xs text-gray-500 truncate">
+                {productData.PartnerCompanyName}
+              </span>
+            </div>
+          )}
+
         </div>
       ) : (
         <div className="text-red-500 text-sm">Failed to load product data</div>

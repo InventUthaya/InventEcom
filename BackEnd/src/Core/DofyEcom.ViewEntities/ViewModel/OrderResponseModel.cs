@@ -40,5 +40,7 @@ namespace DofyEcom.ViewEntities
         public int TotalCount { get; set; }
 
         public string PaymentMethod { get; set; }
+
+        public string? PartnerCompanyName { get; set; }
     }
 }

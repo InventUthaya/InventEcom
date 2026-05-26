@@ -14,7 +14,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedOrderIdState } from "shared/src/recoil/OrderidTrack";
 import BuyOrderServices from "shared/src/services/BuyOrder.Services";
 import ReturnReasonModal from "shared/src/components/utils/ReturnRequestModel/ReturnRequestModel";
-import { RefreshCcw, Undo2 } from "lucide-react";
+import { RefreshCcw, Undo2, Store } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import OrderTracker from "../../../buy/checkout/orderstatus/OrderTracker";
 import moment from "moment";
@@ -395,6 +395,15 @@ const OrdersCard = (item: any) => {
           <span className="text-base text-gray-600 block mt-1">
             {removeBracketValues(item?.AttributeDescription ? item?.AttributeDescription : '')}
           </span>
+
+          {item?.PartnerCompanyName && (
+            <div className="flex items-center gap-1.5 mt-1">
+              <Store size={13} className="text-gray-400 flex-shrink-0" />
+              <span className="text-xs text-gray-500 truncate">
+                {item.PartnerCompanyName}
+              </span>
+            </div>
+          )}
 
           {item?.DiscountPricePercentage > 0 && (
             <span className="text-base font-semibold text-[#EA002A] block mt-1">
