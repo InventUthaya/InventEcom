@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 import AppLayout from "./layout/AppLayout";
@@ -10,11 +10,21 @@ import { SidebarProvider, useSidebar } from "./context/SidebarContext";
 
 function SidebarRouteListener() {
   const location = useLocation();
-  const { reloadMenu } = useSidebar();
+  const navigate = useNavigate();
+  const { reloadMenu, menuItems } = useSidebar();
 
   useEffect(() => {
     reloadMenu(); 
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname === "/" && menuItems.length > 0) {
+      const hasDashboardAccess = menuItems.some(item => item.path === "/");
+      if (!hasDashboardAccess) {
+        navigate(menuItems[0].path);
+      }
+    }
+  }, [location.pathname, menuItems, navigate]);
 
   return null;
 }
