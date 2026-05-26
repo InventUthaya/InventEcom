@@ -38,6 +38,7 @@ namespace DofyEcom.Contracts
         Task<bool> ForgotPassword(string username);
         Task<bool> ResendOTP(string username);
         Task<bool> ResetPassword(string username, string otp, string newPassword);
+        Task<bool> DeleteAccount(long userId);
     }
 }
 

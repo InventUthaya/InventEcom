@@ -316,5 +316,39 @@ namespace DofyEcom.Model
 
             return true;
         }
+
+        public async Task<bool> DeleteAccount(long userId)
+        {
+            try
+            {
+                // Deactivate in UserMaster
+                var userMasterModel = new UserMasterModel(this.iConfig, this.mapper, this.iPrinciple, this.context);
+                var userMaster = userMasterModel.FindById(userId);
+                if (userMaster != null)
+                {
+                    userMaster.IsActive = false;
+                    userMasterModel.UpdateItem(userMaster);
+                }
+
+                // Deactivate in UserLogin
+                var userLoginModel = new UserLoginModel(this.iConfig, this.mapper, this.iPrinciple, this.context);
+                var userLogins = userLoginModel.FindItems(u => u.UserId == (int)userId);
+                if (userLogins != null && userLogins.Any())
+                {
+                    foreach (var login in userLogins)
+                    {
+                        login.IsActive = false;
+                        userLoginModel.UpdateItem(login);
+                    }
+                }
+
+                return await Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                DofyEcom.Logger.SeriLogger.Error(ex, "Error in AuthModel.DeleteAccount");
+                return await Task.FromResult(false);
+            }
+        }
     }
 }

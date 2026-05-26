@@ -1,4 +1,4 @@
-﻿namespace DofyEcom.Public.API.Controllers
+namespace DofyEcom.Public.API.Controllers
 {
     using System.Security.Claims;
     using System.Security.Principal;
@@ -257,6 +257,32 @@
             this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
             return claims;
+        }
+
+        [HttpGet]
+        [Route("DeleteAccount")]
+        public async Task<IActionResult> DeleteAccount([FromQuery] long id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest("Invalid ID");
+                }
+
+                var success = await this.Contract.DeleteAccount(id);
+                if (success)
+                {
+                    return Ok(true);
+                }
+
+                return Ok(false);
+            }
+            catch (Exception ex)
+            {
+                SeriLogger.Error(ex, "Error deleting/deactivating account");
+                return StatusCode(500, new { Status = "Internal Server Error", Message = ex.Message });
+            }
         }
 
         public sealed class JwtTokenBuilder
