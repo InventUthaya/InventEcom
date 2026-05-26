@@ -183,6 +183,10 @@ const OrdersCard = (item: any) => {
       });
   };
   useEffect(() => {
+    GetReturnDaysConfig();
+  }, []);
+
+  useEffect(() => {
     if (selectedOrderId) {
       setExpandedOrderId(selectedOrderId);
     }
@@ -198,7 +202,8 @@ const OrdersCard = (item: any) => {
     orderStatusId: number,
     OrderDate: string,
     UpdatedOrderDate: string,
-    PaidOrderDate: string
+    PaidOrderDate: string,
+    returnRequestStatusId?: number | null
   ) => {
     const formattedOrderDate = OrderDate
       ? moment(OrderDate).format("DD/MM/YYYY")
@@ -211,6 +216,24 @@ const OrdersCard = (item: any) => {
     const formattedPaidOrderDate = PaidOrderDate
       ? moment(PaidOrderDate).format("DD/MM/YYYY")
       : "";
+
+    // 🔄 Return / Refund Flow
+    if (returnRequestStatusId === 10 || returnRequestStatusId === 11) {
+      return [
+        { title: "Return Requested", date: formattedOrderDate, status: true, statusId: 10 },
+        { title: "Refund Pending", date: formattedUpdatedOrderDate, status: true, statusId: 10 },
+        { title: "Refund Completed", date: returnRequestStatusId === 11 ? formattedUpdatedOrderDate : "", status: returnRequestStatusId === 11, statusId: 11 },
+      ];
+    }
+
+    // 🔄 Replacement Flow
+    if (returnRequestStatusId === 17 || returnRequestStatusId === 18) {
+      return [
+        { title: "Replacement Requested", date: formattedOrderDate, status: true, statusId: 17 },
+        { title: "Replacement Pending", date: formattedUpdatedOrderDate, status: true, statusId: 17 },
+        { title: "Replacement Completed", date: returnRequestStatusId === 18 ? formattedUpdatedOrderDate : "", status: returnRequestStatusId === 18, statusId: 18 },
+      ];
+    }
 
     // ❌ Cancelled
     if (orderStatusId === 3) {
@@ -351,8 +374,9 @@ const OrdersCard = (item: any) => {
         orderId={item.Id}
         OrderDetailId={item.OrderDetailId}
         SkuId={item.skuId}
-        PartnerId={item.PartnerId}
+        PartnerId={item.PartnerId || 0}
         IsReturn={isReturn}
+        RefundAmount={(item?.TotalPrice == 0 || item?.TotalPrice == null) ? item?.Price : item?.TotalPrice}
       />
 
       {/* Product Image + Details */}
@@ -484,10 +508,10 @@ const OrdersCard = (item: any) => {
                   )}
 
                   {item?.StatusName === "Completed" &&
-                    item?.IsReturnable &&
+                    (item?.IsReturnable === true || item?.IsReturnable === 1 || item?.IsReturnable === "True") &&
                     item?.UpdatedOrderDate &&
-                    item?.ReturnDays &&
-                    new Date(item.UpdatedOrderDate).getTime() + item.ReturnDays * 24 * 60 * 60 * 1000 >= Date.now() && (
+                    (item?.ReturnDays || returnDays || 7) &&
+                    new Date(item.UpdatedOrderDate).getTime() + (item?.ReturnDays || returnDays || 7) * 24 * 60 * 60 * 1000 >= Date.now() && (
                       <button
                         onClick={() => { setIsReturnModalOpen(true), setIsReturn(true) }}
                         className="py-[6px] px-[14px] border-[#EA002A] border-[1px] border-solid rounded-md text-[#EA002A] hover:bg-[#EA002A] hover:text-white flex items-center gap-1 whitespace-nowrap transition"
@@ -498,19 +522,18 @@ const OrdersCard = (item: any) => {
                     )}
 
                   {item?.StatusName === "Completed" &&
-                    item?.IsReplacement &&
+                    (item?.IsReplacement === true || item?.IsReplacement === 1 || item?.IsReplacement === "True") &&
                     item?.UpdatedOrderDate &&
-                    item?.ReplacementDays &&
-                    new Date(item.UpdatedOrderDate).getTime() + item.ReplacementDays * 24 * 60 * 60 * 1000 >= Date.now() && (
+                    (item?.ReplacementDays || returnDays || 7) &&
+                    new Date(item.UpdatedOrderDate).getTime() + (item?.ReplacementDays || returnDays || 7) * 24 * 60 * 60 * 1000 >= Date.now() && (
                       <button
-                        onClick={() => setIsReturnModalOpen(true)}
+                        onClick={() => { setIsReturnModalOpen(true); setIsReturn(false); }}
                         className="py-[6px] px-[14px] border-[#2563EB] border-[1px] border-solid rounded-md text-[#2563EB] hover:bg-[#2563EB] hover:text-white flex items-center gap-1 whitespace-nowrap transition"
                       >
                         <RefreshCcw size={17} strokeWidth={3} />
                         <span>Replace Item</span>
                       </button>
                     )}
-
                 </div>
               </div>
             ) : (
@@ -568,6 +591,7 @@ const OrdersCard = (item: any) => {
                   item.OrderDate,
                   item.UpdatedOrderDate,
                   item.PaidOrderDate || item.OrderDate,
+                  item.ReturnRequestStatusId
                 )}
               />
             </div>
@@ -684,6 +708,18 @@ const OrdersCard = (item: any) => {
           </div>
         </div>
       )}
+
+      <ReturnReasonModal
+        isOpen={isReturnModalOpen}
+        onClose={() => setIsReturnModalOpen(false)}
+        orderNumber={item?.OrderNumber}
+        orderId={item?.Id}
+        SkuId={item?.skuId}
+        OrderDetailId={item?.OrderDetailId}
+        PartnerId={item?.PartnerId}
+        IsReturn={isReturn}
+        RefundAmount={(item?.TotalPrice == 0 || item?.TotalPrice == null) ? item?.Price : item?.TotalPrice}
+      />
     </div>
   );
 };

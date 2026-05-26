@@ -66,10 +66,10 @@ const Products: React.FC<ProductsProps> = ({ orderDetails, productDetails, getPr
                                         <div className="text-gray-700">{product.Description ?? '-'}</div>
                                         <div className="text-gray-500">Size{product.RamSize ?? '-'}</div>
                                     </div>
-                                    <div><span className="font-medium text-gray-500">Price:</span> {formatCurrency(product.BasePrice)}</div>
+                                    <div><span className="font-medium text-gray-500">Price:</span> {formatCurrency((detail.TotalPrice ?? 0) + (detail.TaxAmount ?? 0))}</div>
                                     <div><span className="font-medium text-gray-500">Quantity:</span> {detail.Quantity ?? '-'}</div>
-                                    <div><span className="font-medium text-gray-500">Discount:</span> {formatCurrency(product.DiscountPrice)}</div>
-                                    <div><span className="font-medium text-gray-500">Total:</span> {formatCurrency(calculateTotal(product.BasePrice, product.DiscountPrice))}</div>
+                                    <div><span className="font-medium text-gray-500">Discount:</span> -</div>
+                                    <div><span className="font-medium text-gray-500">Total:</span> {formatCurrency((detail.TotalPrice ?? 0) + (detail.TaxAmount ?? 0))}</div>
                                     <div className="flex justify-end space-x-2">
                                         <button className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
                                             Create return
@@ -137,16 +137,17 @@ const Products: React.FC<ProductsProps> = ({ orderDetails, productDetails, getPr
                                             </div>
                                         </td>
                                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {formatCurrency(product.BasePrice)}
+                                            {formatCurrency((detail.TotalPrice ?? 0) + (detail.TaxAmount ?? 0))}
                                         </td>
                                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {detail.Quantity ?? '-'}
                                         </td>
                                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {formatCurrency(product.DiscountPrice)}
+                                            {/* Discount is already factored into the OrderDetail's UnitPrice */}
+                                            -
                                         </td>
                                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {formatCurrency(calculateTotal(product.BasePrice, product.DiscountPrice))}
+                                            {formatCurrency((detail.TotalPrice ?? 0) + (detail.TaxAmount ?? 0))}
                                         </td>
                                     </tr>
                                 );

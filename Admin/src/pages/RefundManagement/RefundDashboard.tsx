@@ -13,6 +13,7 @@ import { jwtDecode } from 'jwt-decode';
 import { TokenData } from '../../types';
 import useDebounce from '../../hooks/useDebounce';
 import Pagination from '../CustomComponent/Pagination';
+import OrderDetails from '../Orders/OrderDetails';
 
 const PageMeta = ({ title, description }) => (
     <head>
@@ -33,6 +34,9 @@ const RefundDashboard = () => {
     const [hasMore, setHasMore] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [showOrderDetails, setShowOrderDetails] = useState(false);
 
     // Filter & Search State
     const [searchTerm, setSearchTerm] = useState('');
@@ -97,16 +101,17 @@ const RefundDashboard = () => {
                 const refundData = response.data || [];
 
                 const mappedOrders = refundData.map((item: any) => ({
-                    id: item.Id,
-                    orderNumber: item.OrderNumber || "Unknown Order",
-                    customer: item.CustomerName || "Unknown Customer",
-                    orderStatus: item.StatusName,
-                    orderDate: item.Created || item.OrderDate || "",
-                    orderTotal: item.RefundAmount ?? 0,
+                    id: item.Id ?? item.id,
+                    orderId: item.OrderId ?? item.orderId,
+                    orderNumber: item.OrderNumber || item.orderNumber || "Unknown Order",
+                    customer: item.CustomerName || item.customerName || "Unknown Customer",
+                    orderStatus: item.StatusName || item.statusName,
+                    orderDate: item.Created || item.created || item.OrderDate || item.orderDate || "",
+                    orderTotal: item.RefundAmount ?? item.refundAmount ?? 0,
                     shipment: 'N/A',
                     paymentMethod: 'N/A',
-                    reason: item.Reason || "No reason",
-                    StatusId: item.StatusId
+                    reason: item.Reason || item.reason || "No reason",
+                    StatusId: item.StatusId ?? item.statusId
                 }));
 
                 setOrders(mappedOrders);
@@ -139,6 +144,16 @@ const RefundDashboard = () => {
         setCurrentPage(1);
         fetchRefunds(1, debouncedSearchTerm, filters);
     }, [debouncedSearchTerm, filters]);
+
+    // Global click listener to close popups
+    useEffect(() => {
+        const handleClickOutside = () => {
+            setShowActionPopup(null);
+            setShowExportDropdown(false);
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
 
     // Handle page change
     const handlePageChange = (page: number) => {
@@ -276,9 +291,19 @@ const RefundDashboard = () => {
         return count;
     };
 
-    const handleOrderNumberClick = (orderNumber: string) => {
-        navigate(`/refund-order-details/${orderNumber}`);
+    const handleOrderNumberClick = (order: any) => {
+        setSelectedOrder(order);
+        setShowOrderDetails(true);
     };
+
+    const handleBackToOrders = () => {
+        setShowOrderDetails(false);
+        setSelectedOrder(null);
+    };
+
+    if (showOrderDetails && selectedOrder) {
+        return <OrderDetails order={selectedOrder} onBack={handleBackToOrders} orderID={selectedOrder.orderId} />;
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -371,7 +396,10 @@ const RefundDashboard = () => {
                     <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="relative mb-4 sm:mb-0">
                             <button
-                                onClick={() => setShowExportDropdown(!showExportDropdown)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowExportDropdown(!showExportDropdown);
+                                }}
                                 className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
                             >
                                 <Download className="h-4 w-4 mr-2" />
@@ -455,7 +483,7 @@ const RefundDashboard = () => {
                                                     <td className="px-4 py-4 whitespace-nowrap border-r border-gray-200">
                                                         <span
                                                             className="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer hover:underline"
-                                                            onClick={() => handleOrderNumberClick(order.orderNumber)}
+                                                            onClick={() => handleOrderNumberClick(order)}
                                                         >
                                                             {order.orderNumber}
                                                         </span>
@@ -480,26 +508,47 @@ const RefundDashboard = () => {
                                                     </td>
                                                     <td className="px-4 py-4 whitespace-nowrap text-right relative">
                                                         <button
-                                                            disabled={!(order.StatusId === 10 || order.StatusId === 17)}
+                                                            disabled={!(Number(order.StatusId) === 10 || Number(order.StatusId) === 17)}
                                                             onClick={(e) => handleActionClick(order, e)}
-                                                            className={`p-1 ${(order.StatusId === 10 || order.StatusId === 17) ? 'text-gray-400 hover:text-gray-600 cursor-pointer' : 'text-gray-300 cursor-not-allowed'}`}
+                                                            className={`p-1 ${(Number(order.StatusId) === 10 || Number(order.StatusId) === 17) ? 'text-gray-400 hover:text-gray-600 cursor-pointer' : 'text-gray-300 cursor-not-allowed'}`}
                                                         >
                                                             <MoreVertical className="h-4 w-4" />
                                                         </button>
-                                                        {/* Action popups remain same */}
-                                                        {showActionPopup === order.id && (order.StatusId === 10 || order.StatusId === 17) && (
-                                                            <div className="absolute right-0 top-12 w-40 bg-white rounded-lg shadow-xl border border-gray-200 z-20">
-                                                                <div className="py-1">
-                                                                    {order.StatusId === 10 && (
-                                                                        <button onClick={() => handleRefundClick(order)} className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                                            <RotateCcw className="h-4 w-4 mr-3" /> Refund
-                                                                        </button>
-                                                                    )}
-                                                                    {order.StatusId === 17 && (
-                                                                        <button onClick={() => handleReplacementClick(order)} className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                                            <RotateCcw className="h-4 w-4 mr-3" /> Replacement
-                                                                        </button>
-                                                                    )}
+                                                        {showActionPopup === order.id && (Number(order.StatusId) === 10 || Number(order.StatusId) === 17) && (
+                                                            <div className="absolute right-0 top-8 z-50 sm:w-56 w-48">
+                                                                <div className="bg-white rounded-lg shadow-lg border border-gray-200 relative">
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setShowActionPopup(null);
+                                                                        }}
+                                                                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 z-10 p-1 text-xs rounded-sm hover:bg-gray-100"
+                                                                    >
+                                                                        Close
+                                                                    </button>
+                                                                    <div className="p-3 space-y-4 text-left">
+                                                                        <div className="pt-3">
+                                                                            <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Actions</h3>
+                                                                            <div className="space-y-0.5">
+                                                                                {Number(order.StatusId) === 10 && (
+                                                                                    <button 
+                                                                                        onClick={() => handleRefundClick(order)} 
+                                                                                        className="flex items-center w-full text-left px-2 py-1.5 text-sm rounded-md transition-colors text-gray-800 hover:bg-gray-50"
+                                                                                    >
+                                                                                        <RotateCcw className="h-4 w-4 mr-2" /> Refund
+                                                                                    </button>
+                                                                                )}
+                                                                                {Number(order.StatusId) === 17 && (
+                                                                                    <button 
+                                                                                        onClick={() => handleReplacementClick(order)} 
+                                                                                        className="flex items-center w-full text-left px-2 py-1.5 text-sm rounded-md transition-colors text-gray-800 hover:bg-gray-50"
+                                                                                    >
+                                                                                        <RotateCcw className="h-4 w-4 mr-2" /> Replacement
+                                                                                    </button>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         )}
@@ -536,14 +585,6 @@ const RefundDashboard = () => {
                     )}
                 </div>
             </div>
-
-            {/* Overlay for dropdowns */}
-            {(showExportDropdown || showActionPopup) && (
-                <div className="fixed inset-0 z-10" onClick={() => {
-                    setShowExportDropdown(false);
-                    setShowActionPopup(null);
-                }} />
-            )}
         </div>
     );
 };

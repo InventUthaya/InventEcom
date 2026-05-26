@@ -34,6 +34,7 @@ namespace DofyEcom.ViewEntities
         public bool IsReplacement  { get; set;}
         public int ReturnDays { get; set; }
         public int ReplacementDays { get; set; }
+        public int? ReturnRequestStatusId { get; set; }
         public int Quantity { get; set; }
 
         public int TotalCount { get; set; }

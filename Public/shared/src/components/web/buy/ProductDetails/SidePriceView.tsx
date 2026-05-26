@@ -36,6 +36,10 @@ interface Variant {
   StockQty: number;
   StatusID: number;
   StatusName: string;
+  IsReturnable?: boolean;
+  IsReplacement?: boolean;
+  ReturnDays?: number;
+  ReplacementDays?: number;
 }
 interface Specifications {
   SpecId: number;
@@ -405,12 +409,12 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
               {productData.BrandName ? (
                 <img
                   src={`/assets/BrandImages/${["Permatex", "Podtrade"].includes(productData.BrandName)
-                      ? productData.BrandName
-                      : ["ABRO", "BEA", "BECOOL", "BS BEARING", "CONTITECH", "COPELAND", "LOXEAL", "MANEUROP", "MOL", "NIS", "PATRIOT", "PETROPUMP", "POWER STEER", "ROSPOD", "RUBENA", "SAMICK", "SANLUX", "SLZ", "KURSK BEARING COMPANY"].includes(productData.BrandName.toUpperCase())
-                        ? `${productData.BrandName.toUpperCase()}.jpg`
-                        : productData.BrandName.toUpperCase() === "CZH"
-                          ? "CZH.gif"
-                          : `${productData.BrandName.toUpperCase()}.png`
+                    ? productData.BrandName
+                    : ["ABRO", "BEA", "BECOOL", "BS BEARING", "CONTITECH", "COPELAND", "LOXEAL", "MANEUROP", "MOL", "NIS", "PATRIOT", "PETROPUMP", "POWER STEER", "ROSPOD", "RUBENA", "SAMICK", "SANLUX", "SLZ", "KURSK BEARING COMPANY"].includes(productData.BrandName.toUpperCase())
+                      ? `${productData.BrandName.toUpperCase()}.jpg`
+                      : productData.BrandName.toUpperCase() === "CZH"
+                        ? "CZH.gif"
+                        : `${productData.BrandName.toUpperCase()}.png`
                     }`}
                   alt={productData.BrandName}
                   className="h-10 w-auto object-contain"
@@ -586,6 +590,34 @@ export const DesktopCartView: React.FC<DesktopCartViewProps> = ({
           </table>
         </div>
       </div>
+      {selectedVariant && (
+        <div className="flex flex-col p-5 bg-white rounded-xl border border-[#F2F2F2] mt-4">
+          <div className="text-xs font-extrabold tracking-wider text-zinc-950 uppercase mb-3">
+            RETURN & REPLACEMENT POLICY
+          </div>
+          {(selectedVariant.IsReturnable || selectedVariant.IsReplacement) ? (
+            <div className="flex flex-col gap-2.5">
+              {selectedVariant.IsReturnable && (
+                <div className="flex items-center gap-3 text-sm text-emerald-700 font-semibold bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                  <span className="text-lg">✓</span>
+                  <span>Return Policy: Eligible for Return within {selectedVariant.ReturnDays || 0} Days</span>
+                </div>
+              )}
+              {selectedVariant.IsReplacement && (
+                <div className="flex items-center gap-3 text-sm text-blue-700 font-semibold bg-blue-50 p-3 rounded-lg border border-blue-100">
+                  <span className="text-lg">✓</span>
+                  <span>Replacement Policy: Eligible for Replacement within {selectedVariant.ReplacementDays || 0} Days</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 text-sm text-amber-700 font-semibold bg-amber-50 p-3 rounded-lg border border-amber-100">
+              <span className="text-lg">✗</span>
+              <span>This product is not eligible for Return or Replacement</span>
+            </div>
+          )}
+        </div>
+      )}
       <div className="flex flex-col p-5 bg-white rounded-xl border-[#F2F2F2] border-[1.5px]">
         <div className="flex justify-between font-bold text-xs">
           <div className="tracking-wider text-zinc-950 font-extrabold">DELIVERY AVAILABILITY</div>
@@ -950,12 +982,12 @@ export const MobileCartView: React.FC<DesktopCartViewProps> = ({
               <div className="ml-4 shrink-0">
                 <img
                   src={`/assets/BrandImages/${["Permatex", "Podtrade"].includes(productData.BrandName)
-                      ? productData.BrandName
-                      : ["ABRO", "BEA", "BECOOL", "BS BEARING", "CONTITECH", "COPELAND", "LOXEAL", "MANEUROP", "MOL", "NIS", "PATRIOT", "PETROPUMP", "POWER STEER", "ROSPOD", "RUBENA", "SAMICK", "SANLUX", "SLZ", "KURSK BEARING COMPANY"].includes(productData.BrandName.toUpperCase())
-                        ? `${productData.BrandName.toUpperCase()}.jpg`
-                        : productData.BrandName.toUpperCase() === "CZH"
-                          ? "CZH.gif"
-                          : `${productData.BrandName.toUpperCase()}.png`
+                    ? productData.BrandName
+                    : ["ABRO", "BEA", "BECOOL", "BS BEARING", "CONTITECH", "COPELAND", "LOXEAL", "MANEUROP", "MOL", "NIS", "PATRIOT", "PETROPUMP", "POWER STEER", "ROSPOD", "RUBENA", "SAMICK", "SANLUX", "SLZ", "KURSK BEARING COMPANY"].includes(productData.BrandName.toUpperCase())
+                      ? `${productData.BrandName.toUpperCase()}.jpg`
+                      : productData.BrandName.toUpperCase() === "CZH"
+                        ? "CZH.gif"
+                        : `${productData.BrandName.toUpperCase()}.png`
                     }`}
                   alt={productData.BrandName}
                   className="h-8 w-auto object-contain"
@@ -1125,6 +1157,34 @@ export const MobileCartView: React.FC<DesktopCartViewProps> = ({
           </table>
         </div>
       </div>
+      {selectedVariant && (
+        <div className="flex flex-col p-5 bg-white rounded-xl border border-[#F2F2F2] mt-4">
+          <div className="text-xs font-extrabold tracking-wider text-zinc-950 uppercase mb-3">
+            RETURN & REPLACEMENT POLICY
+          </div>
+          {(selectedVariant.IsReturnable || selectedVariant.IsReplacement) ? (
+            <div className="flex flex-col gap-2.5">
+              {selectedVariant.IsReturnable && (
+                <div className="flex items-center gap-3 text-sm text-emerald-700 font-semibold bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                  <span className="text-lg">✓</span>
+                  <span>Return Policy: Eligible for Return within {selectedVariant.ReturnDays || 0} Days</span>
+                </div>
+              )}
+              {selectedVariant.IsReplacement && (
+                <div className="flex items-center gap-3 text-sm text-blue-700 font-semibold bg-blue-50 p-3 rounded-lg border border-blue-100">
+                  <span className="text-lg">✓</span>
+                  <span>Replacement Policy: Eligible for Replacement within {selectedVariant.ReplacementDays || 0} Days</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 text-sm text-amber-700 font-semibold bg-amber-50 p-3 rounded-lg border border-amber-100">
+              <span className="text-lg">✗</span>
+              <span>This product is not eligible for Return or Replacement</span>
+            </div>
+          )}
+        </div>
+      )}
       <div className="flex flex-col p-4 bg-white rounded-xl border-[#F2F2F2] border-[1.5px]">
         <div className="flex justify-between font-bold text-xs">
           <div className="tracking-wider text-zinc-950 font-extrabold">DELIVERY AVAILABILITY</div>

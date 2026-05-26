@@ -47,6 +47,10 @@ interface OrderHeader {
     Created?: string;
     Email?: string;
     Phone?: string;
+    DiscountTotal?: number;
+    PromoCode?: string;
+    PromoType?: string;
+    PromoValue?: number;
 }
 
 // ... (other interfaces unchanged: OrderDetail, ProductDetail, Payment, StatusHistory)
@@ -74,6 +78,7 @@ const OrderDetails: React.FC<OrderProps> = ({ order, onBack, orderID }) => {
     const [statusHistory, setStatusHistory] = useState([]);
     const [actionType, setActionType] = useState<'assign' | 'reject' | 'complete' | null>(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState<boolean>(false);
+    const [isReplacementModalOpen, setIsReplacementModalOpen] = useState<boolean>(false);
     const [selectedOrderDetailId, setSelectedOrderDetailId] = useState<number | null>(null);
     const [returnReason, setReturnReason] = useState<string>('');
     const [returnNote, setReturnNote] = useState<string>('');
@@ -516,10 +521,12 @@ const OrderDetails: React.FC<OrderProps> = ({ order, onBack, orderID }) => {
             UserId: orderHeader?.UserId,
             Reason: returnReason + (returnNote ? ` | Note: ${returnNote}` : ''),
             RefundAmount: refundAmount,
+            IsReturn: true,
+            PartnerId: selectedDetail.PartnerId || 0,
         };
 
         try {
-            const res = await CommonService.post('refund', 'CreateReturn', payload);
+            const res = await CommonService.post('ReturnRequest', 'CreateReturn', payload);
             if (res.status === 200) {
                 // alert(`Return request created successfully! ID: ${res.data.ReturnId}`);
                 setPaymentStatus('Return Initiated');
@@ -531,6 +538,40 @@ const OrderDetails: React.FC<OrderProps> = ({ order, onBack, orderID }) => {
             alert(err.response?.data?.message || 'Failed to create return request. Check order status or return window.');
         }
     };
+
+    const handleCreateReplacementRequest = async () => {
+        if (!selectedOrderDetailId || !returnReason) {
+            alert('Please select an item and reason.');
+            return;
+        }
+
+        const selectedDetail = orderDetails.find((d: any) => d.Id === selectedOrderDetailId);
+        if (!selectedDetail) return;
+
+        const payload = {
+            OrderId: orderHeader?.Id,
+            OrderDetailId: selectedOrderDetailId,
+            SkuId: selectedDetail.SkuId || selectedDetail.ProductId,
+            UserId: orderHeader?.UserId,
+            Reason: returnReason + (returnNote ? ` | Note: ${returnNote}` : ''),
+            RefundAmount: 0,
+            IsReturn: false,
+            PartnerId: selectedDetail.PartnerId || 0,
+        };
+
+        try {
+            const res = await CommonService.post('ReturnRequest', 'CreateReturn', payload);
+            if (res.status === 200) {
+                setPaymentStatus('Replacement Initiated');
+                setIsReplacementModalOpen(false);
+                fetchOrderDetails();
+            }
+        } catch (err: any) {
+            console.error('Replacement request failed:', err);
+            alert(err.response?.data?.message || 'Failed to create replacement request.');
+        }
+    };
+
     const getLineItemTotal = (detail: any) => {
         if (!detail) return 0;
         return Number(detail.TotalPrice ?? detail.UnitPrice * detail.Quantity);
@@ -713,37 +754,85 @@ const OrderDetails: React.FC<OrderProps> = ({ order, onBack, orderID }) => {
                                     </span>
                                 </div> */}
 
-                                {/* Order TaxRate */}
-                                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-500">Order Selling Price (excl tax)</span>
-                                    {formatCurrency((orderHeader?.ProductTotal || 0))}
-                                </div>
+                                {(() => {
+                                    const postDiscountBase = Number(orderHeader?.ProductTotal) || 0;
+                                    const postDiscountTax = Number(orderHeader?.ProductTaxTotal) || 0;
+                                    const preTaxDiscount = Number(orderHeader?.DiscountTotal) || 0;
+                                    const taxRate = orderDetails?.[0]?.TaxRate || 0;
 
-                                {/* Order TaxAmount */}
-                                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-500">Order TaxAmount</span>
-                                    <span className="text-sm text-gray-900">{formatCurrency(orderHeader?.ProductTaxTotal || 0)}</span>
-                                </div>
+                                    // 1. Final Total (what the customer actually paid)
+                                    const finalTotalInclusive = postDiscountBase + postDiscountTax;
 
-                                {/* Order  TaxRate */}
-                                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-500">Order Tax Rate</span>
-                                    <span className="text-sm text-gray-900">{orderDetails?.[0]?.TaxRate || 0} %</span>
-                                </div>
+                                    let promoDiscountInclusive = 0;
+                                    let originalTotalInclusive = 0;
 
-                                {/* Order  Quantity */}
-                                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-500">Order Quantity</span>
-                                    <span className="text-sm text-gray-900">{orderDetails?.[0]?.Quantity || 0}</span>
-                                </div>
+                                    const isFlat = orderHeader?.PromoType === 'FLAT' || orderHeader?.PromoType?.toLowerCase() === 'flat';
 
-                                {/* Order Total */}
-                                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-500">Order total</span>
-                                    <span className="text-sm font-semibold text-gray-900">
-                                        {formatCurrency(orderTotal + orderHeader?.ProductTaxTotal || 0)}
-                                    </span>
-                                </div>
+                                    if (isFlat) {
+                                        // For FLAT, the user expects to see the exact coupon value
+                                        promoDiscountInclusive = orderHeader?.PromoValue || 0;
+                                        // Calculate the "Product Total" backwards so the math aligns perfectly
+                                        originalTotalInclusive = finalTotalInclusive + promoDiscountInclusive;
+                                    } else {
+                                        // For Percentage, we calculate the original base and tax accurately
+                                        const originalBase = postDiscountBase + preTaxDiscount;
+                                        const originalTax = Math.round(originalBase * (taxRate / 100));
+                                        originalTotalInclusive = originalBase + originalTax;
+                                        promoDiscountInclusive = originalTotalInclusive - finalTotalInclusive;
+                                    }
+
+                                    return (
+                                        <>
+                                            {/* Product Total (Inclusive of Tax) */}
+                                            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+                                                <span className="text-sm font-medium text-gray-500">Product Total (Incl. Tax)</span>
+                                                <span className="text-sm text-gray-900">{formatCurrency(originalTotalInclusive)}</span>
+                                            </div>
+
+                                            {/* Order Tax Rate */}
+                                            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+                                                <span className="text-sm font-medium text-gray-500">Order Tax Rate</span>
+                                                <span className="text-sm text-gray-900">{taxRate} %</span>
+                                            </div>
+
+                                            {/* Order Quantity */}
+                                            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+                                                <span className="text-sm font-medium text-gray-500">Order Quantity</span>
+                                                <span className="text-sm text-gray-900">{orderDetails?.[0]?.Quantity || 0}</span>
+                                            </div>
+
+                                            {preTaxDiscount > 0 && (
+                                                <>
+                                                    <hr className="border-gray-200" />
+                                                    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+                                                        <span className="text-sm font-medium text-gray-500">Promo Discount</span>
+                                                        <span className="text-sm font-semibold text-green-600">
+                                                            - {formatCurrency(promoDiscountInclusive)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+                                                        <span className="text-sm font-medium text-gray-500">Promo Details</span>
+                                                        <span className="text-sm text-gray-900">
+                                                            {orderHeader?.PromoCode ? (
+                                                                <>Code: <strong>{orderHeader.PromoCode}</strong> ({orderHeader.PromoType === 'percentage' ? `${orderHeader.PromoValue}%` : 'FLAT'} off)</>
+                                                            ) : (
+                                                                <span className="text-orange-500 text-xs italic">Restart Backend API to load promo details</span>
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {/* Order Total */}
+                                            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2 mt-4 pt-4 border-t border-gray-200">
+                                                <span className="text-base font-bold text-gray-900">Total Amount (Incl. Tax)</span>
+                                                <span className="text-base font-bold text-gray-900">
+                                                    {formatCurrency(finalTotalInclusive)}
+                                                </span>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
 
                                 <hr className="border-gray-200" />
 
@@ -759,10 +848,10 @@ const OrderDetails: React.FC<OrderProps> = ({ order, onBack, orderID }) => {
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
                                         <span
                                             className={`text-sm font-medium ${paymentStatus === 'Refunded'
-                                                    ? 'text-green-600'
-                                                    : paymentStatus === 'Return Initiated'
-                                                        ? 'text-orange-600'
-                                                        : 'text-gray-900'
+                                                ? 'text-green-600'
+                                                : paymentStatus === 'Return Initiated'
+                                                    ? 'text-orange-600'
+                                                    : 'text-gray-900'
                                                 }`}
                                         >
                                             {paymentStatus}
@@ -771,17 +860,6 @@ const OrderDetails: React.FC<OrderProps> = ({ order, onBack, orderID }) => {
 
                                         {/* <button className="px-3 py-1 text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 rounded border transition-colors">
                                             Refund (Offline)
-                                        </button> */}
-                                        {/* <button
-                                            onClick={() => {
-                                                setIsReturnModalOpen(true);
-                                                setSelectedOrderDetailId(null);
-                                                setReturnReason('');
-                                                setReturnNote('');
-                                            }}
-                                            className="px-3 py-1 text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 rounded border transition-colors"
-                                        >
-                                            Initiate Return
                                         </button> */}
                                         {/* <button className="px-3 py-1 text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 rounded border transition-colors">
                                             Partial refund
@@ -995,6 +1073,98 @@ const OrderDetails: React.FC<OrderProps> = ({ order, onBack, orderID }) => {
                     </div>
                 </div>
             )}
+
+            {isReplacementModalOpen && (
+                <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 overflow-y-auto">
+                    <div className="bg-white rounded-xl p-6 w-full max-w-[540px] mx-4 shadow-2xl my-8">
+                        <h2 className="text-xl font-semibold text-center mb-6 text-gray-800">
+                            Initiate Replacement Request
+                        </h2>
+
+                        {/* Select Item to Replace */}
+                        <div className="mb-5">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Select Item to Replace <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                value={selectedOrderDetailId || ''}
+                                onChange={(e) => setSelectedOrderDetailId(Number(e.target.value))}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md"
+                            >
+                                <option value="">-- Select an item --</option>
+                                {orderDetails.length === 0 && (
+                                    <option disabled>No items available for replacement</option>
+                                )}
+                                {orderDetails.map((detail: any) => {
+                                    const product = getProductDetail(detail.ProductId);
+                                    return (
+                                        <option key={detail.Id} value={detail.Id}>
+                                            {product?.Name ?? 'Product'} × {detail.Quantity}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                        </div>
+
+                        {/* Reason */}
+                        <div className="mb-5">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Reason for Replacement <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                value={returnReason}
+                                onChange={(e) => setReturnReason(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            >
+                                <option value="">-- Select reason --</option>
+                                <option value="Item defective - does not work as described">Item defective - does not work as described</option>
+                                <option value="Wrong size received">Wrong size received</option>
+                                <option value="Arrived damaged">Arrived damaged</option>
+                                <option value="Wrong item shipped">Wrong item shipped</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        {/* Additional Note */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Additional Note (optional)
+                            </label>
+                            <textarea
+                                value={returnNote}
+                                onChange={(e) => setReturnNote(e.target.value)}
+                                placeholder="Any extra details for operations team..."
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md resize-none h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setIsReplacementModalOpen(false);
+                                    setSelectedOrderDetailId(null);
+                                    setReturnReason('');
+                                    setReturnNote('');
+                                }}
+                                className="px-6 py-2.5 text-sm font-medium bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={handleCreateReplacementRequest}
+                                disabled={!selectedOrderDetailId || !returnReason.trim()}
+                                className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Submit Replacement Request
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Rider Assignment Modal */}
             <AssignRiderModal open={open} setOpen={setOpen} riders={riders} onAssign={handleAssign} />
         </div>

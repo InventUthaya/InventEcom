@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,6 +49,9 @@ namespace DofyEcom.ViewEntities.ViewModel
 
         public string Phone { get; set; }
         public string? StatusId { get; set; }
+        public string? PromoCode { get; set; }
+        public string? PromoType { get; set; }
+        public decimal? PromoValue { get; set; }
     }
 
     public class OrderDetailDto

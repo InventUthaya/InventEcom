@@ -11,10 +11,11 @@ interface Props {
     SkuId: number;
     OrderDetailId: number;
     PartnerId:number;
-    IsReturn : boolean
+    IsReturn : boolean;
+    RefundAmount: number;
 }
 
-const ReturnReasonModal: React.FC<Props> = ({ isOpen, onClose, orderNumber, orderId, OrderDetailId, SkuId, PartnerId,IsReturn }) => {
+const ReturnReasonModal: React.FC<Props> = ({ isOpen, onClose, orderNumber, orderId, OrderDetailId, SkuId, PartnerId, IsReturn, RefundAmount }) => {
     const [reason, setReason] = useState('');
     const [comment, setComment] = useState('');
     const PersonId = getLocalStorage()?.PersonId as any;
@@ -24,13 +25,13 @@ const ReturnReasonModal: React.FC<Props> = ({ isOpen, onClose, orderNumber, orde
             OrderId: orderId,
             UserId: PersonId,
             quantity: 1,
-            Reason: reason,
+            Reason: reason + (comment ? ` | Note: ${comment}` : ''),
             requestedAction: 'Repair',
             customerComments: comment,
             returnRequestStatusId: 0,
             OrderDetailId: OrderDetailId,
             SkuId: SkuId,
-            RefundAmount: 1,
+            RefundAmount: RefundAmount,
             PartnerId : PartnerId,
             IsReturn: IsReturn
         }
@@ -50,6 +51,23 @@ console.log("Datsas", data)
 
     if (!isOpen) return null;
 
+    const returnReasons = [
+        "Incorrect Bearing Specifications",
+        "Bearing Clearance / Fit Issue",
+        "Wrong Part Ordered",
+        "Damaged / Defective Part",
+        "No Longer Required"
+    ];
+
+    const replacementReasons = [
+        "Defective / Noisy Bearing",
+        "Incorrect Size / Dimension Received",
+        "Damaged in Transit",
+        "Wrong Brand / Grade Shipped"
+    ];
+
+    const reasonsToDisplay = IsReturn ? returnReasons : replacementReasons;
+
     return (
         <div id="keyboard-avoid" className="fixed bottom-0 inset-0 flex items-center justify-center z-[51] overflow-y-scroll">
             <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose}></div>
@@ -59,21 +77,27 @@ console.log("Datsas", data)
                         &times;
                     </button>
                 </div>
-                <h1 className="text-xl font-semibold mb-2">Replacement Order #{orderNumber}</h1>
+                <h1 className="text-xl font-semibold mb-2">
+                    {IsReturn ? "Return" : "Replacement"} Order #{orderNumber}
+                </h1>
                 <p className="text-sm mb-4 text-gray-600">
-                    Please select a reason and add any comments you'd like to include.
+                    Please select a reason and add any comments you'd like to include for your {IsReturn ? "return" : "replacement"}.
                 </p>
 
-                <label className="block text-sm font-medium mb-1">Reason for Replacement</label>
+                <label className="block text-sm font-medium mb-1">
+                    Reason for {IsReturn ? "Return" : "Replacement"}
+                </label>
                 <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full border rounded-md p-2 mb-4"
+                    className="w-full border rounded-md p-2 mb-4 bg-white"
                 >
                     <option value="">Select a reason</option>
-                    <option value="Received Wrong Product">Received Wrong Product</option>
-                    <option value="Wrong Product Ordered">Wrong Product Ordered</option>
-                    <option value="There Was A Problem With The Product">There Was A Problem With The Product</option>
+                    {reasonsToDisplay.map((r) => (
+                        <option key={r} value={r}>
+                            {r}
+                        </option>
+                    ))}
                 </select>
 
                 <label className="block text-sm font-medium mb-1">Comments</label>
@@ -82,15 +106,16 @@ console.log("Datsas", data)
                     onChange={(e) => setComment(e.target.value)}
                     rows={2}
                     className="w-full border rounded-md p-2 mb-4"
-                    placeholder=""
+                    placeholder="Provide additional details..."
                 />
 
                 <div className="flex justify-center">
                     <button
                         onClick={handleSubmit}
-                        className="bg-[#EA002A] text-white px-4 py-2 rounded-md hover:bg-red-600"
+                        disabled={!reason}
+                        className="bg-[#EA002A] text-white px-4 py-2 rounded-md hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
                     >
-                        Submit Replacement Request
+                        Submit {IsReturn ? "Return" : "Replacement"} Request
                     </button>
                 </div>
             </div>

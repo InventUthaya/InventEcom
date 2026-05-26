@@ -17,10 +17,10 @@ export const HelperConstant = {
         50: 'Rejected',
     } as Record<number, string>,
     returnOrderStatus: {
-        0: 'Replacement Requested',
-        10: 'Replacement Accepted',
-        20: 'Replacement Compeleted',
-        50: 'Replacement Rejected'
+        10: 'Refund Pending',
+        11: 'Refund Completed',
+        17: 'Replacement Requested',
+        18: 'Replacement Completed'
     } as Record<number, string>,
     orderStatusTrack: {
         10: 'Order Confirmed',
@@ -29,7 +29,7 @@ export const HelperConstant = {
         40: 'Delivered',
     } as Record<number, string>,
     orderStatusId: { OrderConfirmed: 10, Dispatched: 20, Delivered: 30, OutofDelivery: 40 },
-    returnOrderStatusId: { ReplacementRequested: 0, ReplacementAccepted: 10, ReplacementCompeleted: 20 ,ReplacementRejected: 50},
+    returnOrderStatusId: { RefundPending: 10, RefundCompleted: 11, ReplacementRequested: 17, ReplacementCompleted: 18 },
     dashboardEntityTypeId: { Testimonial: 5, Youtube: 6, Blogs: 8 },
     emailPattern: { pattern: /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/ },
     numberOnlyRegex: { regex: /^[0-9\b]+$/ },

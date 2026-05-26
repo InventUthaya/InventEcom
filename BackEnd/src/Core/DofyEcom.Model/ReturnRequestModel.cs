@@ -157,6 +157,8 @@ namespace DofyEcom.Model
                     UserId = userId,
                     Reason = reason,
                     RefundAmount = refundAmount,
+                    PartnerId = partnerId,
+                    IsReturn = isReturn,
                     CreatedBy = _user.Identity?.Name ?? "system"
                 });
             return result.FirstOrDefault();

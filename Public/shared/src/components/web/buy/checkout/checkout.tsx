@@ -255,25 +255,38 @@ export default function SimpleCheckoutPage() {
     const selected = orderDetails.filter(i => i.selected);
     const originalProductTotal = selected.reduce((sum, i) => sum + i.TotalPrice, 0);
     const backendDiscount = orderHeader.DiscountTotal || 0;
-    const baseForPromo = originalProductTotal - backendDiscount;
+    const distributionBase = originalProductTotal - backendDiscount;
+
+    let initialTaxTotal = 0;
+    let hasExclusiveTax = false;
+    selected.forEach(item => {
+      const itemOriginalTotal = item.TotalPrice;
+      const itemBackendDisc = originalProductTotal > 0 ? Math.round((itemOriginalTotal / originalProductTotal) * backendDiscount) : 0;
+      const itemBaseAfterBackend = itemOriginalTotal - itemBackendDisc;
+      initialTaxTotal += itemBaseAfterBackend * (item.TaxRate / 100.0);
+      if (!item.IsInclusive) {
+        hasExclusiveTax = true;
+      }
+    });
+
+    const displayBaseForPromo = hasExclusiveTax ? distributionBase : distributionBase + initialTaxTotal;
 
     let promoDiscount = 0;
     if (appliedPromoData && isPromoCodeValid) {
       promoDiscount = appliedPromoData.type === 'FLAT'
         ? appliedPromoData.value
-        : Math.round(baseForPromo * appliedPromoData.value / 100.0);
-      promoDiscount = Math.min(promoDiscount, baseForPromo);
+        : Math.round(displayBaseForPromo * appliedPromoData.value / 100.0);
+      promoDiscount = Math.min(promoDiscount, displayBaseForPromo);
     }
 
     let newProductTotal = 0;
     let newTaxTotal = 0;
-    let hasExclusiveTax = false;
 
     selected.forEach(item => {
       const itemOriginalTotal = item.TotalPrice;
       const itemBackendDisc = originalProductTotal > 0 ? Math.round((itemOriginalTotal / originalProductTotal) * backendDiscount) : 0;
       const itemBaseAfterBackend = itemOriginalTotal - itemBackendDisc;
-      const itemPromoDisc = baseForPromo > 0 ? Math.round((itemBaseAfterBackend / baseForPromo) * promoDiscount) : 0;
+      const itemPromoDisc = distributionBase > 0 ? Math.round((itemBaseAfterBackend / distributionBase) * promoDiscount) : 0;
       const itemPrePromoUnitPrice = itemBaseAfterBackend / item.Quantity;
       const itemNewTax = itemPrePromoUnitPrice * (item.TaxRate / 100.0) * item.Quantity;
       
@@ -298,7 +311,7 @@ export default function SimpleCheckoutPage() {
       hasExclusiveTax,
       discountTotal: Math.round(backendDiscount),
       promoDiscount: Math.round(promoDiscount),
-      netPayableBeforePromo: Math.round(baseForPromo),
+      netPayableBeforePromo: Math.round(displayBaseForPromo),
       netPayable: finalAmount,
       finalAmount,
     };
