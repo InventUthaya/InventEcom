@@ -1380,7 +1380,22 @@ namespace DofyEcom.Model
 
             if (result is not null && result.Any())
             {
-                var filteredResult = !string.IsNullOrEmpty(searchText) ? result?.Where(x => x.ProductName.ToLower().Contains(searchText)) : result;
+                IEnumerable<DBO.ProductMaster> filteredResult;
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    var brandModel = new BrandMasterModel(this.config, this.mapper, this.iPrincipal, this.context);
+                    var matchedBrandIds = brandModel.FindItems(b => b.IsActive == true)?
+                                                     .Where(b => b.BrandName.ToLower().Contains(searchText))
+                                                     .Select(b => (int)b.Id)
+                                                     .ToList() ?? new List<int>();
+
+                    filteredResult = result.Where(x => x.ProductName.ToLower().Contains(searchText) || matchedBrandIds.Contains(x.BrandId));
+                }
+                else
+                {
+                    filteredResult = result;
+                }
+
                 filteredResult = filteredResult?.Count() > 10 ? filteredResult.Take(10) : filteredResult;
                 var mapperResult = this.mapper.Map<IEnumerable<DBO.ProductMaster>, IEnumerable<ViewEntities.ProductMaster>>(filteredResult);
 
