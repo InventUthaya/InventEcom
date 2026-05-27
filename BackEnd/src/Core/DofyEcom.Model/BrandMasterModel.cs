@@ -54,14 +54,27 @@ namespace DofyEcom.Model
 
         public IEnumerable<ViewEntities.BrandMaster> GetList()
         {
-            var result = this.GetAllItems();
-            if (result is not null)
+            try
             {
-                var filteredResult = result.Where(item => item.IsActive == true);
-                var mapperResult = filteredResult.Select(brand => this.mapper.Map<DBO.BrandMaster, ViewEntities.BrandMaster>(brand)).ToList();
-                return mapperResult;
+                var result = this.GetAllItems();
+
+                if (result != null)
+                {
+                    var filteredResult = result.Where(item => item.IsActive == true);
+
+                    var mapperResult = filteredResult
+                        .Select(brand => this.mapper.Map<DBO.BrandMaster, ViewEntities.BrandMaster>(brand))
+                        .ToList();
+
+                    return mapperResult;
+                }
+
+                return Enumerable.Empty<ViewEntities.BrandMaster>();
             }
-            return Enumerable.Empty<ViewEntities.BrandMaster>();
+            catch (Exception ex)
+            {
+                throw new Exception("Error while getting brand list: " + ex.Message);
+            }
         }
 
         public IEnumerable<ViewEntities.BrandMaster> GetActiveBrandForDropdown()
