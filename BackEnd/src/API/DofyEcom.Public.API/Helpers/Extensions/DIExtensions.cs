@@ -1,4 +1,4 @@
-﻿
+
 using DofyEcom.Contract;
 using DofyEcom.Contracts;
 using DofyEcom.Contracts.Interfaces;
@@ -59,6 +59,7 @@ namespace DofyEcom.Public.API.Helpers
             services.AddScoped<IReturnsModel, ReturnsModel>();
 
             services.AddScoped<BrandMasterModel>();
+            services.AddScoped<IBrandMasterModel, BrandMasterModel>();
             services.AddScoped<GradeMasterModel>();
             services.AddScoped<ColorMasterModel>();
             services.AddScoped<RamMasterModel>();

@@ -58,7 +58,7 @@ namespace DofyEcom.Model
             if (result is not null)
             {
                 var filteredResult = result.Where(item => item.IsActive == true);
-                var mapperResult = filteredResult.Select(brand => this.mapper.Map<DBO.BrandMaster, ViewEntities.BrandMaster>(brand));
+                var mapperResult = filteredResult.Select(brand => this.mapper.Map<DBO.BrandMaster, ViewEntities.BrandMaster>(brand)).ToList();
                 return mapperResult;
             }
             return Enumerable.Empty<ViewEntities.BrandMaster>();
